@@ -14,9 +14,9 @@ public class Individual {
 	public Individual(int n){
 		 representation = new int[n];
 		 
-		 for(int i = 0; i<representation.length; i++){
+		 /*for(int i = 0; i<representation.length; i++){
 				representation[i]=1;
-			}
+			}*/
 	}
 	
 	/**
@@ -84,11 +84,11 @@ public class Individual {
 		return clone;
 	}
 	
-	public static void main(String args[]){
+	/*public static void main(String args[]){
 		
 		Individual i = new Individual(11);
 		System.out.print(i.getFitness());
 		
-	}
+	}*/
 
 }

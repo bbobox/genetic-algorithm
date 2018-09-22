@@ -46,9 +46,6 @@ public class Solver {
 			
 		}
 		currentPopulation = population;
-		/*Individual e = new Individual(problemSize);
-		e.changeValue(0, 0);
-		currentPopulation.add(e);*/
 	}
 	
 	/**
@@ -124,6 +121,61 @@ public class Solver {
 	}
 	
 	/**
+	 *  Effectue le croisement uniforme de deux individus parents
+	 */
+	public Individual[] uniformCrossover(Individual i1, Individual i2){
+		Random rand = new Random();
+		
+		int[] representation1 = i1.getClonedRepresentation();
+		int[] representation2 = i2.getClonedRepresentation();
+		
+		int[] crossover1 = new int[problemSize];
+		int[] crossover2 = new int[problemSize];
+		
+		Individual[] childs = new Individual[2];
+		
+		int[] subset = new int[problemSize];
+		for(int i =0; i<problemSize;i++){
+			subset[i] = rand.nextInt(2)+1; 
+		}
+		/*System.out.print("Subset:");
+		
+		System.out.print('[');
+		for(int i = 0; i<subset.length; i++){
+			System.out.print(subset[i]);
+		}
+		System.out.println(']');*/
+		
+		for( int i = 0 ; i< problemSize; i++){
+			if(subset[i]==1){
+				crossover1[i] = representation1[i];
+			}
+			else{
+				crossover1[i] = representation2[i];
+			}
+		}
+		
+		for( int i = 0 ; i< problemSize; i++){
+			if(subset[i]==1){
+				crossover2[i] = representation2[i];
+			}
+			else{
+				crossover2[i] = representation1[i];
+			}
+		}
+		
+		Individual children1 = new Individual(problemSize);
+		Individual children2 = new Individual(problemSize);
+		children1.setRepresentation(crossover1);
+		children2.setRepresentation(crossover2);
+		
+		childs[0] = children1;
+		childs[1] = children2;
+		
+		return childs;
+	}
+	
+	/**
 	 * Mutations de deux individus
 	 * @param childs
 	 */
@@ -155,6 +207,7 @@ public class Solver {
 	 * 
 	 */
 	public void childrenInsertion(){
+		Collections.sort(currentPopulation, Individual.IndividualFintessComparator);
 		currentPopulation.remove(populationSize-1);
 		currentPopulation.remove(populationSize-2);
 		currentPopulation.add(childs[0]);
@@ -171,6 +224,21 @@ public class Solver {
 		parents[1] = currentPopulation.get(1); //parents[1].print();
 	}
 	
+	
+	/**
+	 * Selection aleatoire de deux parents
+	 */
+	public void randomSelection(){
+		Random rand = new Random();
+		int  i1 = rand.nextInt(populationSize-1);
+		int i2 = rand.nextInt(populationSize-1);
+		while(i1==i2){
+			i2 = rand.nextInt(populationSize-1);
+		}
+		parents[0] = currentPopulation.get(i1);
+		parents[1] = currentPopulation.get(i2);
+	}
+	
 	/**
 	 * Retourne le meilleure fitness de la population
 	 */
@@ -178,8 +246,8 @@ public class Solver {
 		int bestValue = 0;
 		for(int i=0 ; i <currentPopulation.size(); i++){
 			Individual ind = currentPopulation.get(i);
-			int fitness=ind.getFitness();
-			if(fitness>bestValue){
+			int fitness = ind.getFitness();
+			if(fitness > bestValue){
 				bestValue = fitness;
 			}
 		}
@@ -209,21 +277,34 @@ public class Solver {
 			//-3 Selection ( Tri et selection des 2 meilleurs parents)
 			bestSelection();
 			
+			//System.out.println(stepCounter+"======================================");
 			/*System.out.println(stepCounter+"======================================");
 			System.out.print("-----Population actuelle : ");
 			printSetOfIndividuals(currentPopulation);
 			
-			System.out.println("parents selectionnés");*/
-			//Collections.sort(currentPopulation, Individual.IndividualFintessComparator);
+			System.out.println("parents selectionnés");
+			Collections.sort(currentPopulation, Individual.IndividualFintessComparator);
 			
-			//parents[0] = currentPopulation.get(0); //parents[0].print();
-			//parents[1] = currentPopulation.get(1); //parents[1].print();
-			//System.out.println();
+			parents[0] = currentPopulation.get(0); //parents[0].print();
+			parents[1] = currentPopulation.get(1); //parents[1].print();
+			System.out.println();*/
+			
 			//- 4 Croisement
 			
 			if (probableChoice(crossoverProba)){
 				
-				childs = monoPointCrossOver(parents[0],parents[1]);
+				/*System.out.println("Aprents avant croissement:");
+				parents[0].print();
+				parents[1].print();
+				System.out.println();*/
+				
+				//childs = monoPointCrossOver(parents[0],parents[1]);
+				childs = uniformCrossover(parents[0],parents[1]);
+				
+				/*System.out.println("Enfants après croissement:");
+				childs[0].print();
+				childs[1].print();
+				System.out.println();*/
 
 			}
 			else{
@@ -295,7 +376,7 @@ public class Solver {
 		
 	public static void main(String args[]){
 		
-		Solver s = new Solver(100,20,2,0.6,0.1,400);
+		Solver s = new Solver(10,20,2,0.6,0.1,100);
 		s.run();
 		//s.probableChoice(0.6);
 		//s.randomChoice();

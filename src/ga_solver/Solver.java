@@ -42,6 +42,7 @@ public class Solver {
 	public void initialization( int nbParents){
 		for(int i = 0; i<nbParents ;i++){
 			Individual  ind = new Individual(problemSize);
+			ind.setGeneration(0);
 			population.add(ind);
 			
 		}
@@ -203,15 +204,28 @@ public class Solver {
 	}
 	
 	/**
-	 * Insertion des deux enfants generés dans la population
-	 * 
+	 * Insertion des deux enfants generés dans la population et
+	 *  remplacement des individus les moins bons (fitness)
 	 */
-	public void childrenInsertion(){
+	public void childrenInsertion1(){
 		Collections.sort(currentPopulation, Individual.IndividualFintessComparator);
 		currentPopulation.remove(populationSize-1);
 		currentPopulation.remove(populationSize-2);
 		currentPopulation.add(childs[0]);
 		currentPopulation.add(childs[1]);
+	}
+	
+	/**
+	 * Insertion des deux enfants generés dans la population et
+	 * remplacement des individus les plus agés 
+	 */
+	public void childrenInsertion2(){
+		Collections.sort(currentPopulation, Individual.IndividualAgeComparator);
+		currentPopulation.remove(populationSize-1);
+		currentPopulation.remove(populationSize-2);
+		currentPopulation.add(childs[0]);
+		currentPopulation.add(childs[1]);
+		
 	}
 	
 	/**
@@ -222,6 +236,30 @@ public class Solver {
 		
 		parents[0] = currentPopulation.get(0); //parents[0].print();
 		parents[1] = currentPopulation.get(1); //parents[1].print();
+	}
+	
+	/**
+	 * Selection des individus par tournoi
+	 * @param T :  nombre d 'individus selectionnés T € [2,populationSize]
+	 */
+	public void tournamentSelection(int T){
+		ArrayList<Individual> selectionned = new ArrayList<Individual>();
+		ArrayList<Integer> l = new ArrayList<Integer>();
+		
+		for(int i = 0; i <T; i++){
+			int id = randomChoice();
+			while(l.contains(id)){
+				id = randomChoice();
+			}
+			l.add(id);
+			selectionned.add(currentPopulation.get(id));
+		}
+		
+		Collections.sort(selectionned, Individual.IndividualFintessComparator);
+		
+		parents[0] = selectionned.get(0);
+		parents[1] = selectionned.get(1);
+		
 	}
 	
 	
@@ -275,7 +313,8 @@ public class Solver {
 		while(!hasBestIndividual(currentPopulation) && stepCounter < iterMax ){
 			
 			//-3 Selection ( Tri et selection des 2 meilleurs parents)
-			bestSelection();
+			//bestSelection();
+			tournamentSelection(5);
 			
 			//System.out.println(stepCounter+"======================================");
 			/*System.out.println(stepCounter+"======================================");
@@ -313,8 +352,10 @@ public class Solver {
 				childs[0] = new Individual(problemSize);
 				childs[1] = new Individual(problemSize);
 				childs[0].setRepresentation(representation1);
-				childs[0].setRepresentation(representation2);
+				childs[1].setRepresentation(representation2);
 			}
+			childs[0].setGeneration(stepCounter);
+			childs[1].setGeneration(stepCounter);
 			/*System.out.println("Enfants après croissement:");
 			childs[0].print();
 			childs[1].print();
@@ -333,8 +374,9 @@ public class Solver {
 			//System.out.println("-----Population arrivée");
 			//printSetOfIndividuals(currentPopulation);
 			
-			//-6 Insertion ( Fiteness: remplacement des deux moins bons)
-			childrenInsertion();
+			//-6 Insertion 
+			//childrenInsertion1(); // ( Fiteness: remplacement des deux moins bons)
+			childrenInsertion2(); // // ( generation: remplacement des deux plus agés)
 			/*System.out.println("-----Population après insertion: ");
 			printSetOfIndividuals(currentPopulation);*/
 			stepCounter++;
@@ -383,6 +425,7 @@ public class Solver {
 		//s.initialization(2);
 		//s.population=null;
 		//s.printSetOfIndividuals(s.currentPopulation);
+
 		
 	}
 

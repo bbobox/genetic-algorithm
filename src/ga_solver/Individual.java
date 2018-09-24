@@ -10,13 +10,11 @@ import java.util.Comparator;
  */
 public class Individual {
 	int[] representation;
+	int generation;
 	
 	public Individual(int n){
 		 representation = new int[n];
 		 
-		 /*for(int i = 0; i<representation.length; i++){
-				representation[i]=1;
-			}*/
 	}
 	
 	/**
@@ -58,6 +56,32 @@ public class Individual {
 	    }
 	};
 	
+	public static Comparator<Individual> IndividualAgeComparator = new Comparator<Individual>() {
+
+		public int compare(Individual i1, Individual i2) {
+		   int evalOfIndividual1 = i1.getGeneration();
+		   int evalOfIndividual2 =  i2.getGeneration();
+
+		   //ascending order
+		   //return evalOfIndividual1 - evalOfIndividual2;
+
+		   //descending order
+		   return evalOfIndividual2 - evalOfIndividual1;
+	    }
+	};
+	
+	
+	
+	
+	
+	public int getGeneration() {
+		return generation;
+	}
+
+	public void setGeneration(int generation) {
+		this.generation = generation;
+	}
+
 	/** 
 	 * @param id : indice element à modifier dans la representation
 	 * @param value : nouvelle value

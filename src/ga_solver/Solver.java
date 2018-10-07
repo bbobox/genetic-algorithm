@@ -403,7 +403,7 @@ public class Solver {
 	/**
 	 * Lancement de la recherche de solution
 	 */
-	public void run(){
+	public void run(int selection, int crossover, int mutation, int insertion){
 		int stepCounter = 0;
 		boolean isOk = false;
 		
@@ -418,17 +418,13 @@ public class Solver {
 			performance.add(perf);
 			
 			//-3 Selection ( Tri et selection des 2 meilleurs parents)
-			bestSelection();
-			//tournamentSelection(5);
+			selectionApplication(selection);
 			
 			//- 4 Croisement
 			
 			if (probableChoice(crossoverProba)){
 				
-				//childs = monoPointCrossOver(parents[0],parents[1]);
-				childs = uniformCrossover(parents[0],parents[1]);
-
-
+				this.crossoverApplication(crossover);
 			}
 			else{
 				int[] representation1 = parents[0].getClonedRepresentation();
@@ -442,12 +438,10 @@ public class Solver {
 			childs[1].setGeneration(stepCounter);
 			
 			//- 5 Mutation ( des deux enfants)
-			childs[0].setRepresentation(mutationBitFlip(childs[0]));
-			childs[1].setRepresentation(mutationBitFlip(childs[1]));
+			this.mutationApplication(mutation);
 			
 			//-6 Insertion 
-			//childrenInsertion1(); // ( Fiteness: remplacement des deux moins bons)
-			childrenInsertion2();  // ( generation: remplacement des deux plus agés)
+			insertionApplication(insertion);
 			stepCounter++;
 		}			
 		
@@ -481,20 +475,97 @@ public class Solver {
 		return n;
 	}
 	
+	/**
+	 * Application d'une methode de selection
+	 * @param type
+	 */
+	public void selectionApplication(int type){
+		switch(type){
+			case 1 :
+				bestSelection();
+				break;
+			case 2:
+				randomSelection();
+				break;
+			case 3:
+				tournamentSelection(5);
+				break;
+			default: 
+				bestSelection();
+				break;
+			}
+	}
 	
-	/*public double nRunAverage(int n){
-		int total =0;
-		for( int i= 0; i< n; i++){
-			total = total+run();
+	/**
+	 * Application d'un methode de croisement
+	 * @param type
+	 */
+	public void crossoverApplication(int type){
+		switch(type){
+			case 1:
+				childs = monoPointCrossOver(parents[0],parents[1]);
+				break;
+			case 2:
+				childs = uniformCrossover(parents[0],parents[1]);
+				break;
+			default:
+				childs = monoPointCrossOver(parents[0],parents[1]);
+				break;
+			
 		}
-		
-		return ((total*(1.)/n));
-	}*/
+	} 
+	
+	/**
+	 * Application d'une methode de mutation
+	 * @param type
+	 */
+	public void mutationApplication(int type){
+		if(type==0){
+			childs[0].setRepresentation(this.mutationBitFlip(childs[0]));
+			childs[1].setRepresentation(mutationNFlips(childs[0],1));
+		}
+		else{
+			childs[0].setRepresentation(mutationNFlips(childs[0],type));
+			childs[1].setRepresentation(mutationNFlips(childs[1],type));
+		}
+	}
+	
+	/**
+	 * Application d'une methode d'insertion
+	 * @param type
+	 */
+	public void insertionApplication(int type){
+		switch(type){
+			case 1:
+				childrenInsertion1(); // ( Fiteness: remplacement des deux moins bons)
+				break;
+			case 2:
+				childrenInsertion2(); // ( generation: remplacement des deux plus agés)
+				break;
+			default:
+				childrenInsertion1();
+				break;
+				
+		}
+	}
+
 		
 	public static void main(String args[]){
 		
-		Solver s = new Solver(100,20,2,0.6,0.5,1000);
-		s.run();
+		if(args.length==8){
+			int selectionType = Integer.parseInt(args[0]);
+			int crossoverType = Integer.parseInt(args[1]);
+			int mutationType = Integer.parseInt(args[2]);
+			int insertionType = Integer.parseInt(args[3]);
+			double pc = Double.parseDouble(args[4]);
+			double pm = Double.parseDouble(args[5]);
+			int size = Integer.parseInt(args[6]);
+			int max = Integer.parseInt(args[7]);
+			
+			Solver s = new Solver(size,20,2,pc,pm,max);
+			s.run(selectionType, crossoverType, mutationType, insertionType);
+		}
+		
 	}
 
 }

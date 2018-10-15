@@ -16,17 +16,15 @@ while [[ "$#" > 0 ]]; do case $1 in
 esac; shift; done
 
 javac ga_solver/*.java;
-java ga_solver.Solver $selection $crossover $mutation $insertion $pc $pm $size $iter_max > "../results/results.txt";
+java ga_solver.Solver $selection $crossover $mutation $insertion $pc $pm $size $iter_max > "../results/adaptive_wheel.dat";
 
 
-gnuplot <<- EOF
-        set xlabel "iterations"
-        set ylabel "fitness"
-       set title "Fitness optimal en fonctions du nombre d'iterations"
-        set term png
-       set output "../results/results_GAs.png"
-        
-	plot '../results/results.txt' u 1:2 w l
-EOF
+#gnuplot <<- EOF
+#        set xlabel "iterations"
+#        set ylabel "fitness"
+#        set title "Fitness optimal en fonctions du nombre d'iterations"
+#        set term png
+#        set output "../results/1_flip.png"
 
-
+#	plot '../results/results.txt' u 1:2 w l
+#EOF

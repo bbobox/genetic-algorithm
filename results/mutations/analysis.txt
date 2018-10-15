@@ -1,0 +1,6 @@
+
+
+On obtient de meilleurs resultats avec en appliquant la mutation  bit-filps.
+
+Concert la methode de mutation NFlips, on constate qu'on des resulats moins performant lorsque N croit :
+( N Correspond à nombre de bit à inverser dans la chaine)

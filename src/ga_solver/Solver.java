@@ -3,6 +3,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
+import operators.MutationBitFlip;
+import operators.MutationNFilps;
+import operators.Operator;
+import operators.OperatorMutation;
+import operators.Operators;
+import ga_solver.*;
+
 /**
  * Cette classe represente le solveur du l'algorithme genetique et
  * ses composantes
@@ -22,6 +29,8 @@ public class Solver {
 	private int iterMax;
 	private ArrayList<Individual> currentPopulation;
 	private ArrayList<int[]> performance;
+	private Operators mutations;
+	private int improvement;
 	
 	public Solver( int problemSize, int popSize , int childs, double pc, double pm, int iterMax){
 		population = new ArrayList<Individual>();
@@ -35,6 +44,21 @@ public class Solver {
 		this.parents =  new Individual[nbChilds];
 		this.iterMax = iterMax;
 		performance = new ArrayList<int[]>();
+		mutations = new Operators(4,5); 
+		
+		
+		// instanciation et ajout des opérateurs d'operation;
+		OperatorMutation mutationbitFilp = new MutationBitFlip(problemSize, mutationProba); 
+		OperatorMutation mutation1Filp = new MutationNFilps(problemSize, mutationProba,1);
+		OperatorMutation mutation3Filp = new MutationNFilps(problemSize, mutationProba,3);
+		OperatorMutation mutation5Filp = new MutationNFilps(problemSize, mutationProba,5);
+		
+		mutations.addOperator(new Operator(mutationbitFilp));
+		mutations.addOperator(new Operator(mutation1Filp));
+		mutations.addOperator(new Operator(mutation3Filp));
+		mutations.addOperator(new Operator(mutation5Filp));
+		mutations.operatorInitial(3);
+	
 	}
 	
 	/**
@@ -401,7 +425,7 @@ public class Solver {
 	
 	
 	/**
-	 * Lancement de la recherche de solution
+	 * Lancement de la recherche de solution (Steady State)
 	 */
 	public void run(int selection, int crossover, int mutation, int insertion){
 		int stepCounter = 0;
@@ -449,6 +473,73 @@ public class Solver {
 	}
 	
 	
+	/**
+	 * Recherche de solution avec gestion automatique du choix de l'opérateur de mutation: Roulette Adaptative
+	 */
+	public void runByAdaptativeWheel(int selection, int crossover, int insertion){
+		int stepCounter = 0;
+		boolean isOk = false;
+		
+		// 1 - Initilisation
+		initialization(populationSize);
+
+		// 2 - Evalutation
+		while(!hasBestIndividual(currentPopulation) && stepCounter < iterMax ){
+			int[] perf = new int[2];
+			perf[0] = stepCounter;
+			perf[1] = bestFitness();
+			performance.add(perf);
+			
+			//-3 Selection ( Tri et selection des 2 meilleurs parents)
+			selectionApplication(selection);
+			
+			//- 4 Croisement
+			
+			if (probableChoice(crossoverProba)){
+				
+				this.crossoverApplication(crossover);
+			}
+			else{
+				int[] representation1 = parents[0].getClonedRepresentation();
+				int[] representation2 = parents[1].getClonedRepresentation();
+				childs[0] = new Individual(problemSize);
+				childs[1] = new Individual(problemSize);
+				childs[0].setRepresentation(representation1);
+				childs[1].setRepresentation(representation2);
+			}
+			childs[0].setGeneration(stepCounter);
+			childs[1].setGeneration(stepCounter);
+			
+			//- 5 Mutation ( des deux enfants)
+				// choix de l'operateur  et application de la  mutation
+				int choice = mutations.operatorChoice();
+				improvement = 0;
+				int[] afterMutation0 = mutations.operatorApplication(choice, childs[0]);
+				int[] afterMutation1 = mutations.operatorApplication(choice, childs[1]);
+				
+				improvement += improvement(childs[0].getRepresentation(),afterMutation0);
+				if(improvement<0){
+					improvement=0;
+				}
+				childs[0].setRepresentation(afterMutation0);
+				improvement += improvement(childs[1].getRepresentation(),afterMutation1);
+				childs[1].setRepresentation(afterMutation1);	;
+				// mise à jour des amelioration
+				if(improvement>0){
+					mutations.addImprovment(choice, improvement);
+				}
+				else{
+					mutations.addImprovment(choice, 0);
+				}
+			
+			//-6 Insertion 
+			insertionApplication(insertion);
+			stepCounter++;
+		}			
+		
+		printPerformance();
+		
+	}
 	
 	
 	/**
@@ -520,13 +611,25 @@ public class Solver {
 	 * @param type
 	 */
 	public void mutationApplication(int type){
+		improvement = 0;
 		if(type==0){
-			childs[0].setRepresentation(this.mutationBitFlip(childs[0]));
-			childs[1].setRepresentation(mutationNFlips(childs[0],1));
+			int[] afterMutation1 = this.mutationBitFlip(childs[0]);
+			improvement += improvement(childs[0].getRepresentation(),afterMutation1);
+			childs[0].setRepresentation(afterMutation1);
+			
+			int[] afterMutation2 = this.mutationBitFlip(childs[1]);
+			improvement += improvement(childs[1].getRepresentation(),afterMutation2);
+			childs[1].setRepresentation(afterMutation2);
+	
 		}
 		else{
-			childs[0].setRepresentation(mutationNFlips(childs[0],type));
-			childs[1].setRepresentation(mutationNFlips(childs[1],type));
+			int[] afterMutation1 = mutationNFlips(childs[0],type);
+			improvement += improvement(childs[0].getRepresentation(),afterMutation1);
+			childs[0].setRepresentation(afterMutation1);
+			
+			int[] afterMutation2 = mutationNFlips(childs[1],type);
+			improvement += improvement(childs[0].getRepresentation(),afterMutation2);
+			childs[1].setRepresentation(afterMutation2);
 		}
 	}
 	
@@ -548,9 +651,26 @@ public class Solver {
 				
 		}
 	}
+	
+	
+	/*
+	 * Compte le nombre de bit à 1 
+	 */
+	int onesCounter(int[] rep){
+		int result = 0;
+		for(int i = 0; i<rep.length; i++){
+			result+=rep[i];
+		}
+		return result;
+	}
+	
+	int improvement(int[] rep1, int[] rep2){
+		return onesCounter(rep2)-onesCounter(rep1);
+	}
 
 		
 	public static void main(String args[]){
+		
 		
 		if(args.length==8){
 			int selectionType = Integer.parseInt(args[0]);
@@ -563,7 +683,14 @@ public class Solver {
 			int max = Integer.parseInt(args[7]);
 			
 			Solver s = new Solver(size,20,2,pc,pm,max);
-			s.run(selectionType, crossoverType, mutationType, insertionType);
+			//s.run(selectionType, crossoverType, mutationType, insertionType);
+			s.runByAdaptativeWheel(selectionType, crossoverType, insertionType);
+		}
+		else{
+		
+		Solver s = new Solver(20,20,2,0,1,200);
+		
+		s.runByAdaptativeWheel(3, 1, 1);
 		}
 		
 	}

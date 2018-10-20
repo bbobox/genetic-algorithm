@@ -46,7 +46,6 @@ public class Operators {
 	 */
 	public void addOperator(Operator op){
 		op.setProbability(1./nb_operators);
-		//System.out.println(1./nb_operators);
 		operatorsSet.add(op);
 	}
 	

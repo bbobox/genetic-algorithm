@@ -20,7 +20,6 @@ public class MutationNFilps implements OperatorMutation{
 	}
 
 	public int[] mutationApplication(Individual child) {
-		//System.out.println("mutation"+N+"FIlp");
 		int[] representation = child.getClonedRepresentation();
 		ArrayList<Integer> l = new ArrayList<Integer>();
 		
@@ -53,8 +52,7 @@ public class MutationNFilps implements OperatorMutation{
 	
 	
 	/**
-	 * Effectue un choix aleatoire en fonction d'une proabilite 
-	 * donnée
+	 * Effectue un choix aleatoire en fonction d'une proabilite donnée
 	 * @param probalility : probabilite du choix
 	 * @return 
 	 */

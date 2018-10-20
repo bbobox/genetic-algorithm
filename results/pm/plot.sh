@@ -3,10 +3,10 @@
 gnuplot <<- EOF
         set xlabel "iterations"
         set ylabel "fitness"
-	set yrange [0:150]
-        set title "Analyse des probabilités de mutation"
+	set yrange [0:400]
+        set title "Analyse des probabilités de mutation en bit-flip"
         set term png
         set output "pm.png"
         
-	plot 'pm_case1.dat' u 1:2 w l, 'pm_case2.dat' u 1:2 w l, 'pm_case3.dat' u 1:2 w l,'pm_case4.dat' u 1:2 w l, 'pm_case02.dat' u 1:2 w l
+	plot 'pm=0,1.dat' u 1:2 w l, 'pm=0,3.dat' u 1:2 w l, 'pm=0,5.dat' u 1:2 w l,'pm=0,8.dat' u 1:2 w l, 'pm=1.dat' u 1:2 w l
 EOF

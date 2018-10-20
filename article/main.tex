@@ -2,7 +2,7 @@
 \usepackage[utf8]{inputenc}
 
 
-\title{Etude d'un algorithme generique sur le probleme one-max}
+\title{Etude d'un algorithme génétique sur le probleme one-max}
 \author{BOKA Yao }
 \date{Octobre 2018}
 
@@ -12,78 +12,93 @@
 
 \section{Introduction}
 
-Les problemes d'optimisation peuvent etre divisés en deux grandes cathégories. On parle d'optimisation continue lorsque les variables manipulées sont discrètes et l'on parle d'optimisation combinatoire lorsque les variables manipulées sont discrètes.
+Les problemes d'optimisation peuvent etre divisés en deux grandes cathégories. On parle d'optimisation continue lorsque les variables manipulées sont continues et l'on parle d'optimisation combinatoire lorsque les variables manipulées sont discrètes.
 Pour un probleme combinatoire donné, l'optimisation consiste à trouver une solution optimale dans un  ensemble de soutions possibles.
-
-Les Algorithmes Evoluonnaires font partie des methodes d'optimisation stochastiques, inspirés des processus biologiques et particulièrement des therories darwiniennes  selon lequelles un ensemble d'organismes biololgiques subissement des processus et pressions environnetaux qui leurs permettent de mieux s'adapeter à environnement. Il existe plusieurs variantes de ces algorithmes parmis lequelles on peut citer les strategies d'evolution, la programmation évolutionnaire, les algorithmes génetiques et la programmation genetiques...
-Le principe general d'un algorithme évolutionnaire est le suivant: On part d'un ensemble de solutions candidates genererées/obtenues aléatoirement representées par une popupations, on selectionne au fil des generations (representées par un certains nombre d'iterations) des indivudus parents de la population surlesquels sont appliqués les opérateurs de croissement et/ou de mutatations. Le croissement est un opérateur qui consiste à combiner un ou plusieurs individus parents afin d'obtenir un ou plusieurs nouveaux individus enfants. La mutation est une opérateur de modification qui s'applique sur un individu enfant. Les nouveaux individus enfants sont par la suite integrés dans la population par raplacement des individus déja present dans la popoplution s'ils sont meilleurs, basé sur la fitness (capacité d'adaptabilité) ou l'age.  Ce principe est representé par le schema dans la figure 1 ainsi que pseudo code de l'algorithme dans la figure 2.
-Les differentes variantes d'un aglorithme évolutionnaire suivent ce meme schema mais diffèrrent de l'espace de recherche (l'espace sur lequel est defini la fonction objectif), de la representation du probleme et de la definition des opérateurs de varations.
+Les \emph{Algorithmes Evoluonnaires} font partie des methodes d'optimisation stochastiques, inspirés des processus biologiques et particulièrement des therories darwiniennes  selon lequelles un ensemble d'organismes biololgiques subissement des processus et pressions environnetaux qui leurs permettent de mieux s'adapeter à environnement. Il existe plusieurs variantes de ces algorithmes parmis lequelles on peut citer les \emph{strategies d'evolution}, la \emph{programmation évolutionnaire}, \emph{les algorithmes génetiques} et la \emph{programmation genetique}...
+Le principe general d'un algorithme évolutionnaire est le suivant: On part d'un ensemble de solutions candidates genererées/obtenues aléatoirement representées par une popupations, on selectionne au fil des générations (représentées par un certains nombre d'itérations) des individus parents de la population sur lesquels sont appliqués les opérateurs de croisement et/ou de mutations. Le croisement est un opérateur qui consiste à combiner deux ou plusieurs individus parents afin d'obtenir un ou plusieurs nouveaux individus enfants. La mutation est une opérateur de modification qui s'applique sur un individu enfant. Les nouveaux individus enfants sont par la suite integrés dans la population par remplacement des individus déjà présents dans la population s'ils sont meilleurs, basé sur la \emph{fitness} (capacité d'adaptabilité) ou l'age.  Ce principe est représenté par le schéma dans la figure 1 ainsi que le pseudo code de l'algorithme dans la figure 2.
+Les différentes variantes d'un algorithme révolutionnaire suivent ce même schéma mais diffèrent de l'espace de recherche (l'espace sur lequel est défini la fonction objectif), de la représentation du problème et de la définition des opérateurs de variations.
 
 \section{Présentation de l'algorithme génétique et son application sur problème One-Max}
 
-Les algorihmes genetiques (GA) ont été introduits en 1975 par John Holland et imaginé comme outils de modelisation de l'adaptation. On les caractérise principalement par la répresentation du génotype de façon binaire (i.e un indivudu est representé par une chaine de bit).
+Les algorithmes génétiques (GA) ont été introduits en 1975 par John Holland et imaginés comme outils de modélisation de l'adaptation. On les caractérise principalement par la représentation du génotype de façon binaire (i.e un individu est représenté par une chaîne de bit).
 
 \subsection{Les composants de l'algorithme}
 
--Un individus est representé comme une chaine de bits de taille N
--La fonction fitness f : permet de calculer le nombre de 1 que contient un individu
-	Exemple: avec S= 1100101, f(S) = 4
+Un individu est représenté comme une chaine de bits de taille N.
+La fonction fitness f : permet de calculer le nombre de 1 que contient un individu. Exemple: avec S= 1100101, f(S) = 4
 	
 \paragraph{Initialisation:}
 Plusieurs choix se presentent tels que partir d'une population de N individus dont tous les L bits constituant la chaine sont initalisés à 0, ou partir d'une population N individus da chaine bit est construite de façon aléatoire.
 \paragraph{La selection:}
-Dans le cadre de ce travail, 3 methodes de methodes sont utilisés: 
-La selection best: qui consiste à choisir dans la population les deux meilleur, ie la meilleure evaluation selon f
-La selection aléatoire: qui consiste à chosir de façon aléatoire deux individus dans la population.
-La selection par tournoi : qui consite à selectionné T individus de façon aléatoire et d'en choisir les deux meilleurs
+Dans le cadre de ce travail, 3 méthodes sont utilisées: 
+La sélection best: qui consiste à choisir dans la population les deux meilleurs, (ie la meilleure évaluation selon f
+La sélection aléatoire): qui consiste à choisir de façon aléatoire deux individus dans la population.
+La sélection par tournoi : qui consiste à sélectionner T individus de façon aléatoire et d'en choisir les deux meilleurs
 
 \paragraph{La recombinaison/croisement:}
 \begin{itemize}
-    \item \emph{Le Croisement mono-point:} Consite à aléatoire un point de croisement, ce qui permet de croiser les parties des deux parents afin d'obtenir les deux individus enfants.
-    \item \emph{Le croisement Uniforme:} Consistent à tirer independement ( avec p =0.5) pour chaque positions de quel parent proviendra le bit correspondant chez chaque enfant.
+    \item \emph{Le Croisement mono-point:} Consiste à aléatoire un point de croisement, ce qui permet de croiser les parties des deux parents afin d'obtenir les deux individus enfants.
+    \item \emph{Le croisement uniforme:} Consistent à tirer indépendemment ( avec p =0.5) pour chaque positions de quel parent proviendra le bit correspondant chez chaque enfant.
 \end{itemize}
 
-\paragraph{ La mutatation:}
-Les opérateurs de mutation permettent de modifier aléatoirement certains bits de chaque individus enfants. Le opérateurs de mutations etudiés sont 3:
+\paragraph{ La mutation:}
+Les opérateurs de mutation permettent de modifier aléatoirement certains bits de chaque individus enfants. Le opérateurs de mutations étudiées sont 3:
 
--La mutation Bit-Flip: qui consiste à inverser chaque bits de l'individus selon une probabilité k.
-
--La mutation N-flip: consite à tirer aléatoirement N positions de bits et d'inverser les bits correspondant.
+\emph{La mutation Bit-Flip}: qui consiste à inverser chaque bits de l'individu selon une probabilité k.
+-La mutation N-flip: consiste à tirer aléatoirement N positions de bits et d'inverser les bits correspondant.
 
 \paragraph{Insertion:}
-L'insertion consiste à inserer les individus enfants dans la nouvelle generation de population en fonction de certains critères. Dans ce travail, on a:
+L'insertion consiste à insérer les individus enfants dans la nouvelle génération de population en fonction de certains critères. Dans ce travail, on a:
 
--L'insertion par Fitness: C'est à dire que les deux indidivus enfants remplacement les deux individus parents les moins bons ( fitness f)
+-L'insertion par Fitness: C'est à dire que les deux individus enfants remplacement les deux individus parents les moins bons ( fitness f)
 
--L'insertion par age: C'est à dire que les deux individus enfants remplacent les deux individus parents les plus agés (i.e de la plus ancienne generation de population)
+-L'insertion par age: C'est à dire que les deux individus enfants remplacent les deux individus parents les plus âgés (i.e de la plus ancienne génération de population)
 
 \subsection{Choix des opérateurs pour l'analyse de l'algorithme}
-Pour l'execution l'algorithme est realisé selon diverses configurations sous plusieurs co permettent d'annaylser l'impact afin d'analyser l'impact ce certains paramètres sur la performance de l'algorithme.
+L'exécution l'algorithme est réalisée selon diverses configurations sous plusieurs co permettent d'analyser l'impact afin d'analyser l'impact de certains paramètres sur la performance de l'algorithme.
 
 \begin{itemize}
-    \item Analyse des mutations: L'analyse des operateurs de mutations consiste à evulaluer les performances de l'algorithme en fonction de la méthode et sur une configuration choisie et representée dans le tableau ci dessous
+    \item[-] Configuration pour l'étude des mutations: L'analyse des opérateurs de mutations consiste à évaluer les performances de l'algorithme en faisant varier les méthodes mutation et sur une configuration particulière choisie. La paramètres sont représentés dans le tableau ci dessous.
     
     \begin{tabular}{|c|c|c|c|c|c|c|}
     \hline
-    selection & insertion & pc & pm & taille & population & iterartions \\
+    sélection & insertion & pc & pm & taille & population & itérations \\
     \hline
-    tournoi & age & 0 & 0.5 & 100 & 20 & 1000\\
+    tournoi & âge & 0 & 1 & 100 & 20 & 1000\\
     \hline
     \end{tabular}
     
-    \item Annalyse des probabilités:
-     
-     - Probabilités de mutation:
-     
+    \item[-] Configuration pour l'étude des probabilités de mutations:
+    
     \begin{tabular}{|c|c|c|c|c|c|c|}
     \hline
-    selection & insertion & pc & taille & population & iterations \\
+    sélection & mutation & insertion & pc & taille & population & itérations \\
     \hline
-    tournoi & age & 0 & 100 & 20 & 1000\\
+    tournoi & bit-flip & âge & 0 & 200 & 20 & 4000\\
     \hline
     \end{tabular}
+    
+    
+    \item[-] Configuration pour l'étude des croisements:
+    
+    \begin{tabular}{|c|c|c|c|c|c|c|c|}
+     \hline
+    sélection & mutation & insertion & pc & pm & taille & population & itérations \\
+    \hline
+    tournoi & 5-flip & âge & 1 & 0.5 & 200 & 20 & 2000\\
+    \hline
+    \end{tabular}
+    
+    \item[-] Configuration pour l'étude des probabilités de croisement
+    
+    
+    \item[-] Configuration pour l'étude des insertions
+    
+    \item[-] Configuration pour l'étude des sélection
         
 \end{itemize}
+
+\subsection{Résultats}
 
 
 \end{document}

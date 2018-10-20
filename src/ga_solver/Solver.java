@@ -595,6 +595,7 @@ public class Solver {
 		switch(type){
 			case 1:
 				childs = monoPointCrossOver(parents[0],parents[1]);
+				//childs[0].print();
 				break;
 			case 2:
 				childs = uniformCrossover(parents[0],parents[1]);
@@ -683,8 +684,8 @@ public class Solver {
 			int max = Integer.parseInt(args[7]);
 			
 			Solver s = new Solver(size,20,2,pc,pm,max);
-			//s.run(selectionType, crossoverType, mutationType, insertionType);
-			s.runByAdaptativeWheel(selectionType, crossoverType, insertionType);
+			s.run(selectionType, crossoverType, mutationType, insertionType);
+			//s.runByAdaptativeWheel(selectionType, crossoverType, insertionType);
 		}
 		else{
 		

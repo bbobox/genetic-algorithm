@@ -16,7 +16,7 @@ while [[ "$#" > 0 ]]; do case $1 in
 esac; shift; done
 
 javac ga_solver/*.java;
-java ga_solver.Solver $selection $crossover $mutation $insertion $pc $pm $size $iter_max > "../results/adaptive_wheel.dat";
+java ga_solver.Solver $selection $crossover $mutation $insertion $pc $pm $size $iter_max > "../results/pm=1.dat";
 
 
 #gnuplot <<- EOF

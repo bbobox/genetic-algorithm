@@ -31,6 +31,7 @@ public class Solver {
 	private ArrayList<int[]> performance;
 	private Operators mutations;
 	private int improvement;
+
 	
 	public Solver( int problemSize, int popSize , int childs, double pc, double pm, int iterMax){
 		population = new ArrayList<Individual>();
@@ -304,11 +305,24 @@ public class Solver {
 	 * remplacement des individus les plus agés 
 	 */
 	public void childrenInsertion2(){
-		Collections.sort(currentPopulation, Individual.IndividualAgeComparator);
+		/*Collections.sort(currentPopulation, Individual.IndividualAgeComparator);
 		currentPopulation.remove(populationSize-1);
 		currentPopulation.remove(populationSize-2);
 		currentPopulation.add(childs[0]);
-		currentPopulation.add(childs[1]);
+		currentPopulation.add(childs[1]);*/
+		
+		Collections.sort(currentPopulation, Individual.IndividualAgeComparator);
+		int size = currentPopulation.size();
+		if(childs[0].getFitness()>currentPopulation.get(size-1).getFitness()){
+			currentPopulation.remove(size-1);
+			currentPopulation.add(childs[0]);
+		}
+		Collections.sort(currentPopulation, Individual.IndividualAgeComparator);
+		size = currentPopulation.size();
+		if(childs[1].getFitness()>currentPopulation.get(size-1).getFitness()){
+			currentPopulation.remove(size-1);
+			currentPopulation.add(childs[1]);
+		}
 		
 	}
 	
@@ -322,7 +336,7 @@ public class Solver {
 		ArrayList<Individual> bestIndividuals = new ArrayList<Individual>();
 		
 		int bestFitness = currentPopulation.get(0).getFitness();
-		int i =0;
+		int i = 0;
 		boolean ok =true;
 		while(i<currentPopulation.size() && ok){
 			if (currentPopulation.get(i).getFitness()==bestFitness){
@@ -424,10 +438,12 @@ public class Solver {
 	}
 	
 	
+	
+	
 	/**
 	 * Lancement de la recherche de solution (Steady State)
 	 */
-	public void run(int selection, int crossover, int mutation, int insertion){
+	public ArrayList<int[]> run(int selection, int crossover, int mutation, int insertion){
 		int stepCounter = 0;
 		boolean isOk = false;
 		
@@ -435,7 +451,44 @@ public class Solver {
 		initialization(populationSize);
 
 		// 2 - Evalutation
-		while(!hasBestIndividual(currentPopulation) && stepCounter < iterMax ){
+		for(int i = 0 ; i< iterMax ; i++) {
+			stepCounter = i;
+			if(!hasBestIndividual(currentPopulation)) {
+				int[] perf = new int[2];
+				perf[0] = stepCounter;
+				perf[1] = bestFitness();
+				performance.add(perf);
+				
+				//-3 Selection ( Tri et selection des 2 meilleurs parents)
+				selectionApplication(selection);
+				
+				//- 4 Croisement
+				
+				if (probableChoice(crossoverProba)){
+					
+					this.crossoverApplication(crossover);
+				}
+				else{
+					int[] representation1 = parents[0].getClonedRepresentation();
+					int[] representation2 = parents[1].getClonedRepresentation();
+					childs[0] = new Individual(problemSize);
+					childs[1] = new Individual(problemSize);
+					childs[0].setRepresentation(representation1);
+					childs[1].setRepresentation(representation2);
+				}
+				childs[0].setGeneration(stepCounter);
+				childs[1].setGeneration(stepCounter);
+				
+				//- 5 Mutation ( des deux enfants)
+				this.mutationApplication(mutation);
+				
+				//-6 Insertion 
+				insertionApplication(insertion);
+				//stepCounter++;
+			}
+			
+		}
+		/*while(!hasBestIndividual(currentPopulation) && stepCounter < iterMax ){
 			int[] perf = new int[2];
 			perf[0] = stepCounter;
 			perf[1] = bestFitness();
@@ -467,16 +520,17 @@ public class Solver {
 			//-6 Insertion 
 			insertionApplication(insertion);
 			stepCounter++;
-		}			
+		}*/			
 		
-		printPerformance();
+		//printPerformance();
+		return performance;
 	}
 	
 	
 	/**
 	 * Recherche de solution avec gestion automatique du choix de l'opérateur de mutation: Roulette Adaptative
 	 */
-	public void runByAdaptativeWheel(int selection, int crossover, int insertion){
+	public ArrayList<int[]> runByAdaptativeWheel(int selection, int crossover, int insertion){
 		int stepCounter = 0;
 		boolean isOk = false;
 		
@@ -538,6 +592,7 @@ public class Solver {
 		}			
 		
 		printPerformance();
+		return performance;
 		
 	}
 	
@@ -668,12 +723,43 @@ public class Solver {
 	int improvement(int[] rep1, int[] rep2){
 		return onesCounter(rep2)-onesCounter(rep1);
 	}
+	
+	/**
+	 * Calcule de  la moyenne des resultats obtenus lors des exécutions
+	 * @param executions : ensemble des resultats d'executions
+	 * @param iterMax : nombre maximum d'iterations
+	 * @return
+	 */
+	 static double[] average(ArrayList<ArrayList<int[]>> executions, int iterMax) {
+		 int nbExecutions = executions.size();
+		 double[] res = new double[iterMax];
+		 for( int i = 0 ; i<iterMax; i++) {
+			 int cpt=0;
+			 for(int k = 0; k < nbExecutions; k++){
+				 cpt+=executions.get(k).get(i)[1];
+			 }
+			 res[i] = (cpt*(1.))/nbExecutions;
+		 }
+		
+		return res;
+	}
+	 
+	 /**
+	  * Affichage des valeurs d'un tableau répresentatif des exécutions
+	  * @param array
+	  */
+	 static void printArray(double[] array){
+		 System.out.println("#iterations fitness");
+		 for (int i=0; i< array.length; i++) {
+			 System.out.println(i+" "+array[i]);
+		 }
+		 
+	 }
 
 		
 	public static void main(String args[]){
-		
-		
-		if(args.length==8){
+		ArrayList<ArrayList<int[]>> executions = new  ArrayList<ArrayList<int[]>>();
+		if(args.length==9){
 			int selectionType = Integer.parseInt(args[0]);
 			int crossoverType = Integer.parseInt(args[1]);
 			int mutationType = Integer.parseInt(args[2]);
@@ -682,10 +768,16 @@ public class Solver {
 			double pm = Double.parseDouble(args[5]);
 			int size = Integer.parseInt(args[6]);
 			int max = Integer.parseInt(args[7]);
+			int tests = Integer.parseInt(args[8]);
 			
 			Solver s = new Solver(size,20,2,pc,pm,max);
-			s.run(selectionType, crossoverType, mutationType, insertionType);
-			//s.runByAdaptativeWheel(selectionType, crossoverType, insertionType);
+			for (int i = 0; i< tests; i++) {
+				 s = new Solver(size,20,2,pc,pm,max);
+				 executions.add(s.run(selectionType, crossoverType, mutationType, insertionType));
+			}
+			double[] average = average(executions,max);
+			printArray(average);
+			
 		}
 		else{
 		

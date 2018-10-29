@@ -1,11 +1,12 @@
 #!/bin/bash
 
+cd .;
 gnuplot <<- EOF
         set xlabel "iterations"
+	set yrange [0:250]
         set ylabel "fitness"
-        set title "Analyse des probabilités de croisement"
+        set title "Analyse des opérateurs d'insertion"
         set term png
         set output "pm.png"
-        
-	plot 'age_insertion.dat' u 1:2 w l, 'best_insertion.dat' u 1:2 w l
+	plot 'age.dat' u 1:2 w l, 'fitness.dat' u 1:2 w l
 EOF

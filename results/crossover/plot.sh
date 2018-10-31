@@ -8,5 +8,5 @@ gnuplot <<- EOF
         set term png
         set output "crossovers.png"
         
-	plot 'monopoint_crossover.dat' u 1:2 w l, 'uniform_crossover.dat' u 1:2 w l
+	plot 'monopoint.dat' u 1:2 w l, 'uniform.dat' u 1:2 w l
 EOF

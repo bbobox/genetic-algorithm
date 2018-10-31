@@ -28,7 +28,7 @@ public class Solver {
 	private Individual[] parents;
 	private int iterMax;
 	private ArrayList<Individual> currentPopulation;
-	private ArrayList<int[]> performance;
+	private int[] performance;
 	private Operators mutations;
 	private int improvement;
 
@@ -44,8 +44,8 @@ public class Solver {
 		this.childs = new Individual[nbChilds];
 		this.parents =  new Individual[nbChilds];
 		this.iterMax = iterMax;
-		performance = new ArrayList<int[]>();
-		mutations = new Operators(4,5); 
+		performance = new int[iterMax];
+		mutations = new Operators(4,50); 
 		
 		
 		// instanciation et ajout des opérateurs d'operation;
@@ -432,8 +432,8 @@ public class Solver {
 	 */
 	public void printPerformance(){
 		System.out.println("#iterations fitness");
-		for(int i =0; i<performance.size(); i++){
-			System.out.println(performance.get(i)[0]+" "+performance.get(i)[1]);
+		for(int i =0; i<performance.length; i++){
+			System.out.println(i+" "+performance[i]);
 		}
 	}
 	
@@ -443,7 +443,7 @@ public class Solver {
 	/**
 	 * Lancement de la recherche de solution (Steady State)
 	 */
-	public ArrayList<int[]> run(int selection, int crossover, int mutation, int insertion){
+	public int[] run(int selection, int crossover, int mutation, int insertion){
 		int stepCounter = 0;
 		boolean isOk = false;
 		
@@ -454,10 +454,7 @@ public class Solver {
 		for(int i = 0 ; i< iterMax ; i++) {
 			stepCounter = i;
 			if(!hasBestIndividual(currentPopulation)) {
-				int[] perf = new int[2];
-				perf[0] = stepCounter;
-				perf[1] = bestFitness();
-				performance.add(perf);
+				performance[stepCounter] = bestFitness();
 				
 				//-3 Selection ( Tri et selection des 2 meilleurs parents)
 				selectionApplication(selection);
@@ -476,53 +473,21 @@ public class Solver {
 					childs[0].setRepresentation(representation1);
 					childs[1].setRepresentation(representation2);
 				}
-				childs[0].setGeneration(stepCounter);
-				childs[1].setGeneration(stepCounter);
+				childs[0].setGeneration(stepCounter+1);
+				childs[1].setGeneration(stepCounter+1);
 				
 				//- 5 Mutation ( des deux enfants)
 				this.mutationApplication(mutation);
 				
 				//-6 Insertion 
 				insertionApplication(insertion);
-				//stepCounter++;
+			}
+			else {
+				performance[stepCounter] = bestFitness();
 			}
 			
 		}
-		/*while(!hasBestIndividual(currentPopulation) && stepCounter < iterMax ){
-			int[] perf = new int[2];
-			perf[0] = stepCounter;
-			perf[1] = bestFitness();
-			performance.add(perf);
-			
-			//-3 Selection ( Tri et selection des 2 meilleurs parents)
-			selectionApplication(selection);
-			
-			//- 4 Croisement
-			
-			if (probableChoice(crossoverProba)){
-				
-				this.crossoverApplication(crossover);
-			}
-			else{
-				int[] representation1 = parents[0].getClonedRepresentation();
-				int[] representation2 = parents[1].getClonedRepresentation();
-				childs[0] = new Individual(problemSize);
-				childs[1] = new Individual(problemSize);
-				childs[0].setRepresentation(representation1);
-				childs[1].setRepresentation(representation2);
-			}
-			childs[0].setGeneration(stepCounter);
-			childs[1].setGeneration(stepCounter);
-			
-			//- 5 Mutation ( des deux enfants)
-			this.mutationApplication(mutation);
-			
-			//-6 Insertion 
-			insertionApplication(insertion);
-			stepCounter++;
-		}*/			
 		
-		//printPerformance();
 		return performance;
 	}
 	
@@ -530,7 +495,7 @@ public class Solver {
 	/**
 	 * Recherche de solution avec gestion automatique du choix de l'opérateur de mutation: Roulette Adaptative
 	 */
-	public ArrayList<int[]> runByAdaptativeWheel(int selection, int crossover, int insertion){
+	public int[] runByAdaptativeWheel(int selection, int crossover, int insertion){
 		int stepCounter = 0;
 		boolean isOk = false;
 		
@@ -538,60 +503,60 @@ public class Solver {
 		initialization(populationSize);
 
 		// 2 - Evalutation
-		while(!hasBestIndividual(currentPopulation) && stepCounter < iterMax ){
-			int[] perf = new int[2];
-			perf[0] = stepCounter;
-			perf[1] = bestFitness();
-			performance.add(perf);
-			
-			//-3 Selection ( Tri et selection des 2 meilleurs parents)
-			selectionApplication(selection);
-			
-			//- 4 Croisement
-			
-			if (probableChoice(crossoverProba)){
+		for(int i = 0 ; i< iterMax ; i++) {
+			stepCounter = i;
+			if(!hasBestIndividual(currentPopulation)) {
+				performance[stepCounter] = bestFitness();
 				
-				this.crossoverApplication(crossover);
-			}
-			else{
-				int[] representation1 = parents[0].getClonedRepresentation();
-				int[] representation2 = parents[1].getClonedRepresentation();
-				childs[0] = new Individual(problemSize);
-				childs[1] = new Individual(problemSize);
-				childs[0].setRepresentation(representation1);
-				childs[1].setRepresentation(representation2);
-			}
-			childs[0].setGeneration(stepCounter);
-			childs[1].setGeneration(stepCounter);
-			
-			//- 5 Mutation ( des deux enfants)
-				// choix de l'operateur  et application de la  mutation
-				int choice = mutations.operatorChoice();
-				improvement = 0;
-				int[] afterMutation0 = mutations.operatorApplication(choice, childs[0]);
-				int[] afterMutation1 = mutations.operatorApplication(choice, childs[1]);
+				//-3 Selection ( Tri et selection des 2 meilleurs parents)
+				selectionApplication(selection);
 				
-				improvement += improvement(childs[0].getRepresentation(),afterMutation0);
-				if(improvement<0){
-					improvement=0;
-				}
-				childs[0].setRepresentation(afterMutation0);
-				improvement += improvement(childs[1].getRepresentation(),afterMutation1);
-				childs[1].setRepresentation(afterMutation1);	;
-				// mise à jour des amelioration
-				if(improvement>0){
-					mutations.addImprovment(choice, improvement);
+				//- 4 Croisement
+				
+				if (probableChoice(crossoverProba)){
+					
+					this.crossoverApplication(crossover);
 				}
 				else{
-					mutations.addImprovment(choice, 0);
+					int[] representation1 = parents[0].getClonedRepresentation();
+					int[] representation2 = parents[1].getClonedRepresentation();
+					childs[0] = new Individual(problemSize);
+					childs[1] = new Individual(problemSize);
+					childs[0].setRepresentation(representation1);
+					childs[1].setRepresentation(representation2);
 				}
-			
-			//-6 Insertion 
-			insertionApplication(insertion);
-			stepCounter++;
-		}			
+				childs[0].setGeneration(stepCounter+1);
+				childs[1].setGeneration(stepCounter+1);
+				
+				//- 5 Mutation ( des deux enfants)
+					// choix de l'operateur  et application de la  mutation
+					int choice = mutations.operatorChoice();
+					improvement = 0;
+					int[] afterMutation0 = mutations.operatorApplication(choice, childs[0]);
+					int[] afterMutation1 = mutations.operatorApplication(choice, childs[1]);
+					
+					improvement += improvement(childs[0].getRepresentation(),afterMutation0);
+					if(improvement<0){
+						improvement=0;
+					}
+					childs[0].setRepresentation(afterMutation0);
+					improvement += improvement(childs[1].getRepresentation(),afterMutation1);
+					childs[1].setRepresentation(afterMutation1);	;
+					// mise à jour des amelioration
+					if(improvement>0){
+						mutations.addImprovment(choice, improvement);
+					}
+					else{
+						mutations.addImprovment(choice, 0);
+					}
+				
+				//-6 Insertion 
+				insertionApplication(insertion);		
+			}else {
+				performance[stepCounter] = bestFitness();
+			}
+		}
 		
-		printPerformance();
 		return performance;
 		
 	}
@@ -650,7 +615,6 @@ public class Solver {
 		switch(type){
 			case 1:
 				childs = monoPointCrossOver(parents[0],parents[1]);
-				//childs[0].print();
 				break;
 			case 2:
 				childs = uniformCrossover(parents[0],parents[1]);
@@ -663,10 +627,10 @@ public class Solver {
 	} 
 	
 	/**
-	 * Application d'une methode de mutation
+	 * Application d'une methode par selection adaptative
 	 * @param type
 	 */
-	public void mutationApplication(int type){
+	public void adaptiveWheelMutationApplication(int type){
 		improvement = 0;
 		if(type==0){
 			int[] afterMutation1 = this.mutationBitFlip(childs[0]);
@@ -686,6 +650,21 @@ public class Solver {
 			int[] afterMutation2 = mutationNFlips(childs[1],type);
 			improvement += improvement(childs[0].getRepresentation(),afterMutation2);
 			childs[1].setRepresentation(afterMutation2);
+		}
+	}
+	
+	/**
+	 * Application d'une methode de mutation
+	 * @param type
+	 */
+	public void mutationApplication(int type){
+		if(type==0){
+			childs[0].setRepresentation(this.mutationBitFlip(childs[0]));
+			childs[1].setRepresentation(mutationNFlips(childs[0],1));
+		}
+		else{
+			childs[0].setRepresentation(mutationNFlips(childs[0],type));
+			childs[1].setRepresentation(mutationNFlips(childs[1],type));
 		}
 	}
 	
@@ -730,13 +709,13 @@ public class Solver {
 	 * @param iterMax : nombre maximum d'iterations
 	 * @return
 	 */
-	 static double[] average(ArrayList<ArrayList<int[]>> executions, int iterMax) {
+	 static double[] average(ArrayList<int[]> executions, int iterMax) {
 		 int nbExecutions = executions.size();
 		 double[] res = new double[iterMax];
 		 for( int i = 0 ; i<iterMax; i++) {
 			 int cpt=0;
 			 for(int k = 0; k < nbExecutions; k++){
-				 cpt+=executions.get(k).get(i)[1];
+				 cpt+=executions.get(k)[i];
 			 }
 			 res[i] = (cpt*(1.))/nbExecutions;
 		 }
@@ -758,7 +737,7 @@ public class Solver {
 
 		
 	public static void main(String args[]){
-		ArrayList<ArrayList<int[]>> executions = new  ArrayList<ArrayList<int[]>>();
+		ArrayList<int[]> executions = new  ArrayList<int[]>();
 		if(args.length==9){
 			int selectionType = Integer.parseInt(args[0]);
 			int crossoverType = Integer.parseInt(args[1]);
@@ -771,19 +750,23 @@ public class Solver {
 			int tests = Integer.parseInt(args[8]);
 			
 			Solver s = new Solver(size,20,2,pc,pm,max);
-			for (int i = 0; i< tests; i++) {
-				 s = new Solver(size,20,2,pc,pm,max);
-				 executions.add(s.run(selectionType, crossoverType, mutationType, insertionType));
+			if(mutationType>=0) {
+				for (int i = 0; i< tests; i++) {
+					 s = new Solver(size,20,2,pc,pm,max);
+					 executions.add(s.run(selectionType, crossoverType, mutationType, insertionType));
+				}
+				double[] average = average(executions,max);
+				printArray(average);
 			}
-			double[] average = average(executions,max);
-			printArray(average);
+			else {
+				for (int i = 0; i< tests; i++) {
+					 s = new Solver(size,20,2,pc,pm,max);
+					 executions.add(s.runByAdaptativeWheel(selectionType, crossoverType, insertionType));
+				}
+				double[] average = average(executions,max);
+				printArray(average);
+			}
 			
-		}
-		else{
-		
-		Solver s = new Solver(20,20,2,0,1,200);
-		
-		s.runByAdaptativeWheel(3, 1, 1);
 		}
 		
 	}

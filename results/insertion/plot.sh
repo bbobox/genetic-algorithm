@@ -7,6 +7,6 @@ gnuplot <<- EOF
         set ylabel "fitness"
         set title "Analyse des opérateurs d'insertion"
         set term png
-        set output "pm.png"
+        set output "insertions.png"
 	plot 'age.dat' u 1:2 w l, 'fitness.dat' u 1:2 w l
 EOF

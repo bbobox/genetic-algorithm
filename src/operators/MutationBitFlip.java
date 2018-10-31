@@ -26,7 +26,7 @@ public class MutationBitFlip implements OperatorMutation {
 		int[] representation = child.getClonedRepresentation();
 		
 		double proba = (1./problemSize);
-		if(probableChoice(mutationProba)){
+		//if(probableChoice(mutationProba)){
 		
 			for(int i = 0; i < problemSize;i++){
 				if( probableChoice(proba)){
@@ -37,7 +37,7 @@ public class MutationBitFlip implements OperatorMutation {
 					}
 				}
 			}
-		}
+		//}
 	
 		return representation;
 	}

@@ -45,7 +45,7 @@ public class Solver {
 		this.parents =  new Individual[nbChilds];
 		this.iterMax = iterMax;
 		performance = new int[iterMax];
-		mutations = new Operators(4,50); 
+		mutations = new Operators(4,25); 
 		
 		
 		// instanciation et ajout des opérateurs d'operation;
@@ -282,14 +282,14 @@ public class Solver {
 	public void childrenInsertion1(){
 		Collections.sort(currentPopulation, Individual.IndividualFintessComparator);
 		int size = currentPopulation.size();
-		if(childs[0].getFitness()>currentPopulation.get(size-1).getFitness()){
+		if(childs[0].getFitness()>=currentPopulation.get(size-1).getFitness()){
 			currentPopulation.remove(size-1);
 			currentPopulation.add(childs[0]);
 		}
 		Collections.sort(currentPopulation, Individual.IndividualFintessComparator);
 		
 		size = currentPopulation.size();
-		if(childs[1].getFitness()>currentPopulation.get(size-1).getFitness()){
+		if(childs[1].getFitness()>=currentPopulation.get(size-1).getFitness()){
 			currentPopulation.remove(size-1);
 			currentPopulation.add(childs[1]);
 		}
@@ -313,13 +313,13 @@ public class Solver {
 		
 		Collections.sort(currentPopulation, Individual.IndividualAgeComparator);
 		int size = currentPopulation.size();
-		if(childs[0].getFitness()>currentPopulation.get(size-1).getFitness()){
+		if(childs[0].getFitness()>=currentPopulation.get(size-1).getFitness()){
 			currentPopulation.remove(size-1);
 			currentPopulation.add(childs[0]);
 		}
 		Collections.sort(currentPopulation, Individual.IndividualAgeComparator);
 		size = currentPopulation.size();
-		if(childs[1].getFitness()>currentPopulation.get(size-1).getFitness()){
+		if(childs[1].getFitness()>=currentPopulation.get(size-1).getFitness()){
 			currentPopulation.remove(size-1);
 			currentPopulation.add(childs[1]);
 		}
@@ -327,7 +327,7 @@ public class Solver {
 	}
 	
 	/**
-	 * Selection des deux meilleur parents
+	 * Selection des deux meilleurs parents
 	 */
 	public void bestSelection(){
 		Collections.sort(currentPopulation, Individual.IndividualFintessComparator);
@@ -445,7 +445,6 @@ public class Solver {
 	 */
 	public int[] run(int selection, int crossover, int mutation, int insertion){
 		int stepCounter = 0;
-		boolean isOk = false;
 		
 		// 1 - Initilisation
 		initialization(populationSize);
@@ -456,7 +455,7 @@ public class Solver {
 			if(!hasBestIndividual(currentPopulation)) {
 				performance[stepCounter] = bestFitness();
 				
-				//-3 Selection ( Tri et selection des 2 meilleurs parents)
+				//-3 Selection ( selection de 2 parents)
 				selectionApplication(selection);
 				
 				//- 4 Croisement
@@ -530,6 +529,7 @@ public class Solver {
 				
 				//- 5 Mutation ( des deux enfants)
 					// choix de l'operateur  et application de la  mutation
+				if (probableChoice(mutationProba)){
 					int choice = mutations.operatorChoice();
 					improvement = 0;
 					int[] afterMutation0 = mutations.operatorApplication(choice, childs[0]);
@@ -541,7 +541,7 @@ public class Solver {
 					}
 					childs[0].setRepresentation(afterMutation0);
 					improvement += improvement(childs[1].getRepresentation(),afterMutation1);
-					childs[1].setRepresentation(afterMutation1);	;
+					childs[1].setRepresentation(afterMutation1);
 					// mise à jour des amelioration
 					if(improvement>0){
 						mutations.addImprovment(choice, improvement);
@@ -549,8 +549,11 @@ public class Solver {
 					else{
 						mutations.addImprovment(choice, 0);
 					}
-				
+					
+				}
+					
 				//-6 Insertion 
+				
 				insertionApplication(insertion);		
 			}else {
 				performance[stepCounter] = bestFitness();
@@ -712,7 +715,7 @@ public class Solver {
 	 static double[] average(ArrayList<int[]> executions, int iterMax) {
 		 int nbExecutions = executions.size();
 		 double[] res = new double[iterMax];
-		 for( int i = 0 ; i<iterMax; i++) {
+		 for( int i = 0 ; i< iterMax; i++) {
 			 int cpt=0;
 			 for(int k = 0; k < nbExecutions; k++){
 				 cpt+=executions.get(k)[i];
@@ -748,7 +751,6 @@ public class Solver {
 			int size = Integer.parseInt(args[6]);
 			int max = Integer.parseInt(args[7]);
 			int tests = Integer.parseInt(args[8]);
-			
 			Solver s = new Solver(size,20,2,pc,pm,max);
 			if(mutationType>=0) {
 				for (int i = 0; i< tests; i++) {

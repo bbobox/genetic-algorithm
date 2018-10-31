@@ -8,5 +8,5 @@ gnuplot <<- EOF
         set term png
         set output "pm.png"
         
-	plot 'best_select.dat' u 1:2 w l, 'random_select.dat' u 1:2 w l, 'tournament_select.dat' u 1:2 w l
+	plot 'best.dat' u 1:2 w l, 'random.dat' u 1:2 w l, 'tournament.dat' u 1:2 w l
 EOF

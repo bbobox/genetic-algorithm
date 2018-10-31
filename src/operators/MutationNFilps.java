@@ -23,7 +23,7 @@ public class MutationNFilps implements OperatorMutation{
 		int[] representation = child.getClonedRepresentation();
 		ArrayList<Integer> l = new ArrayList<Integer>();
 		
-		if(probableChoice(mutationProba)){
+		//if(probableChoice(mutationProba)){
 			
 			for(int i = 0; i < N; i++){
 				int id = randomChoice();
@@ -34,7 +34,7 @@ public class MutationNFilps implements OperatorMutation{
 				l.add(id);
 			}
 			
-			for(int i = 0; i<l.size();i++){
+			for(int i = 0; i < l.size();i++){
 				int idBit = l.get(i);
 				if(representation[idBit] == 0){
 					representation[idBit]=1;
@@ -44,7 +44,7 @@ public class MutationNFilps implements OperatorMutation{
 				}
 			}
 			
-		}
+		//}
 		
 				
 		return representation;

@@ -45,7 +45,7 @@ public class Solver {
 		this.parents =  new Individual[nbChilds];
 		this.iterMax = iterMax;
 		performance = new int[iterMax];
-		mutations = new Operators(4,25); 
+		mutations = new Operators(4,5); 
 		
 		
 		// instanciation et ajout des opérateurs d'operation;
@@ -119,7 +119,7 @@ public class Solver {
 	 * @return les deux individus enfants generés
 	 */
 	public Individual[] monoPointCrossOver(Individual i1, Individual i2){
-		Individual[] childs = new Individual[2];
+		Individual[] individuals = new Individual[2];
 		
 		int crossoverPoint = randomChoice();
 		
@@ -141,10 +141,10 @@ public class Solver {
 		children1.setRepresentation(crossover1);
 		children2.setRepresentation(crossover2);
 		
-		childs[0] = children1;
-		childs[1] = children2;
+		individuals[0] = children1;
+		individuals[1] = children2;
 		
-		return childs;
+		return individuals;
 	}
 	
 	/**
@@ -159,7 +159,7 @@ public class Solver {
 		int[] crossover1 = new int[problemSize];
 		int[] crossover2 = new int[problemSize];
 		
-		Individual[] childs = new Individual[2];
+		Individual[] individuals = new Individual[2];
 		
 		int[] subset = new int[problemSize];
 		for(int i =0; i<problemSize;i++){
@@ -189,10 +189,10 @@ public class Solver {
 		children1.setRepresentation(crossover1);
 		children2.setRepresentation(crossover2);
 		
-		childs[0] = children1;
-		childs[1] = children2;
+		individuals[0] = children1;
+		individuals[1] = children2;
 		
-		return childs;
+		return individuals;
 	}
 	
 	/**
@@ -284,14 +284,14 @@ public class Solver {
 		int size = currentPopulation.size();
 		if(childs[0].getFitness()>=currentPopulation.get(size-1).getFitness()){
 			currentPopulation.remove(size-1);
-			currentPopulation.add(childs[0]);
+			currentPopulation.add(childs[0].cloned());
 		}
 		Collections.sort(currentPopulation, Individual.IndividualFintessComparator);
 		
 		size = currentPopulation.size();
 		if(childs[1].getFitness()>=currentPopulation.get(size-1).getFitness()){
 			currentPopulation.remove(size-1);
-			currentPopulation.add(childs[1]);
+			currentPopulation.add(childs[1].cloned());
 		}
 		
 		/*currentPopulation.remove(populationSize-1);
@@ -308,20 +308,28 @@ public class Solver {
 		/*Collections.sort(currentPopulation, Individual.IndividualAgeComparator);
 		currentPopulation.remove(populationSize-1);
 		currentPopulation.remove(populationSize-2);
-		currentPopulation.add(childs[0]);
-		currentPopulation.add(childs[1]);*/
+		Individual i = childs[0].cloned();
+		currentPopulation.add(i);
+		Individual i2 = childs[1].cloned();
+		currentPopulation.add(i2);*/
 		
 		Collections.sort(currentPopulation, Individual.IndividualAgeComparator);
 		int size = currentPopulation.size();
-		if(childs[0].getFitness()>=currentPopulation.get(size-1).getFitness()){
+		if(childs[0].getFitness()>currentPopulation.get(size-1).getFitness()){
 			currentPopulation.remove(size-1);
-			currentPopulation.add(childs[0]);
+			//currentPopulation.add(childs[0]); 
+			Individual i = this.childs[0].cloned();
+			this.currentPopulation.add(i);
+			 
 		}
 		Collections.sort(currentPopulation, Individual.IndividualAgeComparator);
 		size = currentPopulation.size();
-		if(childs[1].getFitness()>=currentPopulation.get(size-1).getFitness()){
+		if(childs[1].getFitness()>currentPopulation.get(size-1).getFitness()){
 			currentPopulation.remove(size-1);
-			currentPopulation.add(childs[1]);
+			//currentPopulation.add(childs[1]);
+			Individual i = this.childs[1].cloned();
+			this.currentPopulation.add(i);
+
 		}
 		
 	}
@@ -331,7 +339,6 @@ public class Solver {
 	 */
 	public void bestSelection(){
 		Collections.sort(currentPopulation, Individual.IndividualFintessComparator);
-		
 		
 		ArrayList<Individual> bestIndividuals = new ArrayList<Individual>();
 		
@@ -360,12 +367,12 @@ public class Solver {
 					id = rand.nextInt(counter-1);
 				}
 				l.add(id);
-				parents[j] = bestIndividuals.get(id);
+				parents[j] = bestIndividuals.get(id).cloned();
 			}
 			
 		}else{
-			parents[0] = currentPopulation.get(0); //parents[0].print();
-			parents[1] = currentPopulation.get(1); //parents[1].print();
+			parents[0] = currentPopulation.get(0).cloned(); //parents[0].print();
+			parents[1] = currentPopulation.get(1).cloned(); //parents[1].print();
 		}
 		
 		
@@ -386,13 +393,13 @@ public class Solver {
 				id = rand.nextInt(populationSize-1);
 			}
 			l.add(id);
-			selectionned.add(currentPopulation.get(id));
+			selectionned.add(currentPopulation.get(id).cloned());
 		}
 		
 		Collections.sort(selectionned, Individual.IndividualFintessComparator);
 		
-		parents[0] = selectionned.get(0);
-		parents[1] = selectionned.get(1);
+		parents[0] = selectionned.get(0).cloned();
+		parents[1] = selectionned.get(1).cloned();
 		
 	}
 	
@@ -407,8 +414,8 @@ public class Solver {
 		while(i1==i2){
 			i2 = rand.nextInt(populationSize-1);
 		}
-		parents[0] = currentPopulation.get(i1);
-		parents[1] = currentPopulation.get(i2);
+		parents[0] = currentPopulation.get(i1).cloned();
+		parents[1] = currentPopulation.get(i2).cloned();
 	}
 	
 	/**
@@ -496,7 +503,7 @@ public class Solver {
 	 */
 	public int[] runByAdaptativeWheel(int selection, int crossover, int insertion){
 		int stepCounter = 0;
-		boolean isOk = false;
+		//boolean isOk = false;
 		
 		// 1 - Initilisation
 		initialization(populationSize);
@@ -546,9 +553,9 @@ public class Solver {
 					if(improvement>0){
 						mutations.addImprovment(choice, improvement);
 					}
-					else{
+					/*else{
 						mutations.addImprovment(choice, 0);
-					}
+					}*/
 					
 				}
 					
@@ -663,7 +670,7 @@ public class Solver {
 	public void mutationApplication(int type){
 		if(type==0){
 			childs[0].setRepresentation(this.mutationBitFlip(childs[0]));
-			childs[1].setRepresentation(mutationNFlips(childs[0],1));
+			childs[1].setRepresentation(this.mutationBitFlip(childs[1]));
 		}
 		else{
 			childs[0].setRepresentation(mutationNFlips(childs[0],type));
@@ -754,7 +761,7 @@ public class Solver {
 			Solver s = new Solver(size,20,2,pc,pm,max);
 			if(mutationType>=0) {
 				for (int i = 0; i< tests; i++) {
-					 s = new Solver(size,20,2,pc,pm,max);
+					 s = new Solver(size,50,2,pc,pm,max);
 					 executions.add(s.run(selectionType, crossoverType, mutationType, insertionType));
 				}
 				double[] average = average(executions,max);

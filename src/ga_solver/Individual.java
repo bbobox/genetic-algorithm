@@ -11,9 +11,11 @@ import java.util.Comparator;
 public class Individual {
 	int[] representation;
 	int generation;
+	int size;
 	
 	public Individual(int n){
 		 representation = new int[n];
+		 size = n;
 		 
 	}
 	
@@ -108,10 +110,21 @@ public class Individual {
 		return clone;
 	}
 	
+	public Individual cloned() {
+		Individual i = new Individual(size);
+		i.setRepresentation(getClonedRepresentation());
+	
+		return i;
+	}
+	
 	/*public static void main(String args[]){
 		
 		Individual i = new Individual(11);
-		System.out.print(i.getFitness());
+		Individual i2 = i; //.clone();
+		i.setRepresentation(new int[3]);
+		i.print();
+		i2.print();
+		//System.out.println(i.getFitness());
 		
 	}*/
 

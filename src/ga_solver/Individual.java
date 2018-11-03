@@ -1,6 +1,8 @@
 package ga_solver;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Scanner;
 
 
 /**
@@ -121,12 +123,34 @@ public class Individual {
 	/*public static void main(String args[]){
 
 		Individual i = new Individual(11);
-		Individual i2 = i; //.clone();
+		Individual i2 = i.cloned(); //.clone();
 		i.setRepresentation(new int[3]);
-		i.print();
-		i2.print();
-		//System.out.println(i.getFitness());
+
+		ArrayList<Individual> list = new ArrayList<Individual>();
+		list.add(i2);
+		list.add(i);
+		Individual get = list.get(0);
+
+		list.remove(get);
+		System.out.println(list.size());
 
 	}*/
 
+	public static void main( String[] argv ) throws Exception {
+		System.out.println(Math.round(2.5));
+		String  line;
+		Scanner sc = new Scanner(System.in);
+		int number = sc.nextInt();
+		int i = 0;
+		while(i< number) {
+			line = sc.nextLine();
+			String val[] = line.split(line);
+
+			Math.round(2.1);
+
+			/* Lisez les données et effectuez votre traitement */
+		}
+	/* Vous pouvez aussi effectuer votre traitement une fois que vous avez lu toutes les données.*/
+
+	}
 }

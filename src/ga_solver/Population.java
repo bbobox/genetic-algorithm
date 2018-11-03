@@ -15,7 +15,7 @@ import operators.Operators;
  * @author boka
  *
  */
-public class Solver {
+public class Population {
 
 	private ArrayList<Individual> population;
 	private int problemSize;
@@ -30,9 +30,10 @@ public class Solver {
 	private int[] performance;
 	private Operators mutations;
 	private int improvement;
+	private  int iteration;
 
 
-	public Solver( int problemSize, int popSize , int childs, double pc, double pm, int iterMax){
+	public Population( int problemSize, int popSize , int childs, double pc, double pm, int iterMax){
 		population = new ArrayList<Individual>();
 		currentPopulation = new ArrayList<Individual>();
 		this.problemSize = problemSize;
@@ -45,6 +46,7 @@ public class Solver {
 		this.iterMax = iterMax;
 		performance = new int[iterMax];
 		mutations = new Operators(4,5);
+		iteration = 0;
 
 
 		// instanciation et ajout des opérateurs d'operation;
@@ -57,7 +59,7 @@ public class Solver {
 		mutations.addOperator(new Operator(mutation1Filp));
 		mutations.addOperator(new Operator(mutation3Filp));
 		mutations.addOperator(new Operator(mutation5Filp));
-		mutations.operatorInitial(3);
+		//mutations.operatorInitial(3);
 
 	}
 
@@ -65,8 +67,8 @@ public class Solver {
 	 * @param nbParents : le nombre d'individus à selectionnés
 	 * à l'initialization
 	 */
-	public void initialization( int nbParents){
-		for(int i = 0; i<nbParents ;i++){
+	public void initialization(){
+		for(int i = 0; i<populationSize ;i++){
 			Individual  ind = new Individual(problemSize);
 			ind.setGeneration(0);
 			population.add(ind);
@@ -98,11 +100,11 @@ public class Solver {
 	 * Verifie les critrère de l'algortithme et renvoie
 	 * 'true" si l'objectif est atteint
 	 */
-	public boolean hasBestIndividual(ArrayList<Individual> set){
+	public boolean hasBestIndividual(){
 		boolean isOk = false;
 		int i = 0;
-		while(i < set.size() && isOk==false){
-			Individual ind = set.get(i);
+		while(i < currentPopulation.size() && isOk==false){
+			Individual ind = currentPopulation.get(i);
 			if( ind.getFitness() == problemSize){
 				isOk = true;
 			}
@@ -307,10 +309,8 @@ public class Solver {
 		/*Collections.sort(currentPopulation, Individual.IndividualAgeComparator);
 		currentPopulation.remove(populationSize-1);
 		currentPopulation.remove(populationSize-2);
-		Individual i = childs[0].cloned();
-		currentPopulation.add(i);
-		Individual i2 = childs[1].cloned();
-		currentPopulation.add(i2);*/
+		currentPopulation.add(childs[0].cloned());
+		currentPopulation.add(childs[1].cloned());*/
 
 		Collections.sort(currentPopulation, Individual.IndividualAgeComparator);
 		int size = currentPopulation.size();
@@ -380,22 +380,27 @@ public class Solver {
 	 */
 	public void tournamentSelection(int T){
 		Random rand = new Random();
-		ArrayList<Individual> selectionned = new ArrayList<Individual>();
-		ArrayList<Integer> l = new ArrayList<Integer>();
-
-		for(int i = 0; i <T; i++){
-			int  id = rand.nextInt(populationSize-1);
-			while(l.contains(id)){
-				id = rand.nextInt(populationSize-1);
-			}
-			l.add(id);
-			selectionned.add(currentPopulation.get(id).cloned());
+		if( populationSize < T ){
+			bestSelection();
 		}
+			else{
+			ArrayList<Individual> selectionned = new ArrayList<Individual>();
+			ArrayList<Integer> l = new ArrayList<Integer>();
 
-		Collections.sort(selectionned, Individual.IndividualFintessComparator);
+			for(int i = 0; i <T; i++){
+				int  id = rand.nextInt(populationSize);
+				while(l.contains(id)){
+					id = rand.nextInt(populationSize);
+				}
+				l.add(id);
+				selectionned.add(currentPopulation.get(id).cloned());
+			}
 
-		parents[0] = selectionned.get(0).cloned();
-		parents[1] = selectionned.get(1).cloned();
+			Collections.sort(selectionned, Individual.IndividualFintessComparator);
+
+			parents[0] = selectionned.get(0).cloned();
+			parents[1] = selectionned.get(1).cloned();
+		}
 
 	}
 
@@ -450,12 +455,12 @@ public class Solver {
 		int stepCounter = 0;
 
 		// 1 - Initilisation
-		initialization(populationSize);
+		initialization();
 
 		// 2 - Evalutation
 		for(int i = 0 ; i< iterMax ; i++) {
 			stepCounter = i;
-			if(!hasBestIndividual(currentPopulation)) {
+			if(!hasBestIndividual()) {
 				performance[stepCounter] = bestFitness();
 
 				//-3 Selection ( selection de 2 parents)
@@ -502,12 +507,12 @@ public class Solver {
 		//boolean isOk = false;
 
 		// 1 - Initilisation
-		initialization(populationSize);
+		initialization();
 
 		// 2 - Evalutation
 		for(int i = 0 ; i< iterMax ; i++) {
 			stepCounter = i;
-			if(!hasBestIndividual(currentPopulation)) {
+			if(!hasBestIndividual()) {
 				performance[stepCounter] = bestFitness();
 
 				//-3 Selection ( Tri et selection des 2 meilleurs parents)
@@ -741,6 +746,124 @@ public class Solver {
 
 	 }
 
+	 /**
+	  * Evolutation de la population lors en seul itération
+	  */
+	 public void evolution(int selection, int crossover, int mutation, int insertion){
+		//-3 Selection ( Tri et selection des 2 meilleurs parents)
+			selectionApplication(selection);
+
+			//- 4 Croisement
+			if (probableChoice(crossoverProba)){
+
+				this.crossoverApplication(crossover);
+			}
+			else{
+				int[] representation1 = parents[0].getClonedRepresentation();
+				int[] representation2 = parents[1].getClonedRepresentation();
+				childs[0] = new Individual(problemSize);
+				childs[1] = new Individual(problemSize);
+				childs[0].setRepresentation(representation1);
+				childs[1].setRepresentation(representation2);
+			}
+			iteration+=1;
+			childs[0].setGeneration(iteration);
+			childs[1].setGeneration(iteration);
+
+			//- 5 Mutation ( des deux enfants)
+				// choix de l'operateur  et application de la  mutation
+			if (probableChoice(mutationProba)){
+				int choice = mutations.operatorChoice();
+				improvement = 0;
+				int[] afterMutation0 = mutations.operatorApplication(choice, childs[0]);
+				int[] afterMutation1 = mutations.operatorApplication(choice, childs[1]);
+
+				improvement += improvement(childs[0].getRepresentation(),afterMutation0);
+				if(improvement<0){
+					improvement=0;
+				}
+				childs[0].setRepresentation(afterMutation0);
+				improvement += improvement(childs[1].getRepresentation(),afterMutation1);
+				childs[1].setRepresentation(afterMutation1);
+				// mise à jour des amelioration
+				if(improvement>0){
+					mutations.addImprovment(choice, improvement);
+				}
+				else{
+					mutations.addImprovment(choice, 0);
+				}
+
+			}
+
+			//-6 Insertion
+
+			insertionApplication(insertion);
+
+	 }
+
+	 /**
+	  * Recherche d'un individu de meilleur qualité
+	  */
+	 public Individual getBestIndividual(){
+		 Collections.sort(currentPopulation, Individual.IndividualFintessComparator);
+
+			ArrayList<Individual> bestIndividuals = new ArrayList<Individual>();
+
+			int bestFitness = currentPopulation.get(0).getFitness();
+			int i = 0;
+			boolean ok =true;
+			while(i<currentPopulation.size() && ok){
+				if (currentPopulation.get(i).getFitness()==bestFitness){
+					bestIndividuals.add(currentPopulation.get(i));
+				}
+				else{
+					ok= false;
+				}
+
+				i++;
+			}
+
+
+			int counter = bestIndividuals.size();
+
+
+			if(counter > 1){
+				Random rand = new Random();
+				ArrayList<Integer> l = new ArrayList<Integer>();
+				int  id = rand.nextInt(counter-1);
+				return bestIndividuals.get(id);
+
+			}else{
+				return currentPopulation.get(0);
+			}
+
+	 }
+
+	 /**
+	  * Ajout d'un individu dans la population
+	  * @param id
+	  */
+	 public void addIndividual(Individual id){
+		 currentPopulation.add(id);
+	 }
+
+	 /**
+	  * Suppression d'un individu de la population
+	  * @param ind : indice/position de l'individu
+	  */
+	 public  void removeIndividual(int position){
+		 currentPopulation.remove(position);
+	 }
+
+
+	 /**
+	  * Suppression d'un individu de la population
+	  * @param id : Individu
+	  */
+	 public  void removeIndividual(Individual id){
+		 currentPopulation.remove(id);
+	 }
+
 
 	public static void main(String args[]){
 		ArrayList<int[]> executions = new  ArrayList<int[]>();
@@ -755,10 +878,10 @@ public class Solver {
 			int max = Integer.parseInt(args[7]);
 			int tests = Integer.parseInt(args[8]);
 			int popupaltionSize = Integer.parseInt(args[9]);
-			Solver s = new Solver(size,popupaltionSize,2,pc,pm,max);
+			Population s = new Population(size,popupaltionSize,2,pc,pm,max);
 			if(mutationType>=0) {
 				for (int i = 0; i< tests; i++) {
-					 s = new Solver(size,popupaltionSize,2,pc,pm,max);
+					 s = new Population(size,popupaltionSize,2,pc,pm,max);
 					 executions.add(s.run(selectionType, crossoverType, mutationType, insertionType));
 				}
 				double[] average = average(executions,max);
@@ -766,7 +889,8 @@ public class Solver {
 			}
 			else {
 				for (int i = 0; i< tests; i++) {
-					 s = new Solver(size,popupaltionSize,2,pc,pm,max);
+					 s = new Population(size,popupaltionSize,2,pc,pm,max);
+
 					 executions.add(s.runByAdaptativeWheel(selectionType, crossoverType, insertionType));
 				}
 				double[] average = average(executions,max);

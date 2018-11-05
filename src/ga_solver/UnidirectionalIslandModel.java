@@ -79,8 +79,6 @@ public class UnidirectionalIslandModel {
 			islands.get(i).initialization();
 		}
 
-
-
 		for(int i = 0 ; i< iterMax ; i++){
 			stepCounter = i;
 			// critère d'arret
@@ -91,8 +89,8 @@ public class UnidirectionalIslandModel {
 				//Evolution des populations
 				for(int k = 0 ; k<islands.size() ; k++){
 					islands.get(k).evolution(selection, crossover, mutation, insertion);
-					Individual best = islands.get(k).getBestIndividual().cloned();
-					islandsBestIndividuals.add(best);
+					Individual best = islands.get(k).getBestIndividual();
+					 
 					islands.get(k).removeIndividual(best);
 				}
 				// Migration
@@ -169,14 +167,7 @@ public class UnidirectionalIslandModel {
 
 			}
 
-
-
-
 	}
-
-
-
-
 
 }
 

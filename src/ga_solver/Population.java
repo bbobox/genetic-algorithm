@@ -1,4 +1,7 @@
 package ga_solver;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -45,7 +48,7 @@ public class Population {
 		this.parents =  new Individual[nbChilds];
 		this.iterMax = iterMax;
 		performance = new int[iterMax];
-		mutations = new Operators(4,5);
+		mutations = new Operators(4,25,this.iterMax);
 		iteration = 0;
 
 
@@ -55,10 +58,10 @@ public class Population {
 		OperatorMutation mutation3Filp = new MutationNFilps(problemSize, mutationProba,3);
 		OperatorMutation mutation5Filp = new MutationNFilps(problemSize, mutationProba,5);
 
-		mutations.addOperator(new Operator(mutationbitFilp));
-		mutations.addOperator(new Operator(mutation1Filp));
-		mutations.addOperator(new Operator(mutation3Filp));
-		mutations.addOperator(new Operator(mutation5Filp));
+		mutations.addOperator(new Operator(mutationbitFilp, this.iterMax));
+		mutations.addOperator(new Operator(mutation1Filp,this.iterMax));
+		mutations.addOperator(new Operator(mutation3Filp,this.iterMax));
+		mutations.addOperator(new Operator(mutation5Filp,this.iterMax));
 		//mutations.operatorInitial(3);
 
 	}
@@ -552,10 +555,10 @@ public class Population {
 					childs[1].setRepresentation(afterMutation1);
 					// mise à jour des amelioration
 					if(improvement>0){
-						mutations.addImprovment(choice, improvement);
+						mutations.addImprovment(choice, improvement,stepCounter);
 					}
 					else{
-						mutations.addImprovment(choice, 0);
+						mutations.addImprovment(choice, 0,stepCounter);
 					}
 
 				}
@@ -565,9 +568,10 @@ public class Population {
 				insertionApplication(insertion);
 			}else {
 				performance[stepCounter] = bestFitness();
+				mutations.updateUtilities();
+				mutations.updateProbabilites(stepCounter);
 			}
 		}
-
 		return performance;
 
 	}
@@ -771,29 +775,7 @@ public class Population {
 			childs[1].setGeneration(iteration);
 
 			//- 5 Mutation ( des deux enfants)
-				// choix de l'operateur  et application de la  mutation
-			if (probableChoice(mutationProba)){
-				int choice = mutations.operatorChoice();
-				improvement = 0;
-				int[] afterMutation0 = mutations.operatorApplication(choice, childs[0]);
-				int[] afterMutation1 = mutations.operatorApplication(choice, childs[1]);
-
-				improvement += improvement(childs[0].getRepresentation(),afterMutation0);
-				if(improvement<0){
-					improvement=0;
-				}
-				childs[0].setRepresentation(afterMutation0);
-				improvement += improvement(childs[1].getRepresentation(),afterMutation1);
-				childs[1].setRepresentation(afterMutation1);
-				// mise à jour des amelioration
-				if(improvement>0){
-					mutations.addImprovment(choice, improvement);
-				}
-				else{
-					mutations.addImprovment(choice, 0);
-				}
-
-			}
+			this.mutationApplication(mutation);
 
 			//-6 Insertion
 
@@ -865,8 +847,66 @@ public class Population {
 	 }
 
 
-	public static void main(String args[]){
+
+	 public  double[][] getChoiceProba(){
+		 double[][] res = new double[mutations.getNbOperator()][this.iterMax];
+		 for(int i=0; i< mutations.getNbOperator(); i++){
+			 res[i] = mutations.getOperator(i).getProbabilites();
+		 }
+
+		 return res;
+	 }
+
+	 static void printDataInFile(String outputFile, double[] data) throws IOException{
+		 BufferedWriter fSortie;
+		 fSortie = new BufferedWriter(new FileWriter(outputFile));
+
+		 fSortie.write("#iterations probabilites");fSortie.newLine();
+		 for(int i = 0; i<data.length ; i++){
+			 fSortie.write(i+" "+data[i]); fSortie.newLine();
+
+		 }
+		 fSortie.close();
+	 }
+
+	 /**
+	  * Calcul de la moyenne des probas d'un opérateurs sur l'ensemble des exécutions
+	  * @param choicesProba : Ensemble des données recoltés sur l'ensemble des exécutions
+	  * @param operatorID :  Id de l'opérateur
+	  * @param iter : nombre max d'itérations
+	  * @return
+	  */
+	 static double[] operatorAverageProba(ArrayList<double[][]> choicesProba, int operatorID, int iter){
+		 int n = choicesProba.size();
+		 double[] average = new double[iter];
+		 double[][] operatorAverage = new double[n][iter];
+		 for(int i=0; i< n ; i++){
+			 operatorAverage[i] = choicesProba.get(i)[operatorID];
+		 }
+		 for( int i=0; i< iter ; i++){
+			 double cpt = 0 ;
+			 for( int k=0; k< n ; k++){
+
+				 cpt+=  operatorAverage[k][i];
+			 }
+			 average[i] = (1.)*cpt/n;
+		 }
+
+		 return average;
+	 }
+
+
+	 static  void outPutAllAverage(ArrayList<double[][]> choicesProba , int iter, int n) throws IOException{
+
+		 for(int i=0 ; i< n; i++){
+			 printDataInFile("../results/operator_"+i+".dat", operatorAverageProba(choicesProba,i,iter));
+		 }
+	 }
+
+
+	public static void main(String args[]) throws IOException{
 		ArrayList<int[]> executions = new  ArrayList<int[]>();
+		ArrayList<double[][]> choicesProba = new  ArrayList<double[][]>();
 		if(args.length==10){
 			int selectionType = Integer.parseInt(args[0]);
 			int crossoverType = Integer.parseInt(args[1]);
@@ -892,10 +932,13 @@ public class Population {
 					 s = new Population(size,popupaltionSize,2,pc,pm,max);
 
 					 executions.add(s.runByAdaptativeWheel(selectionType, crossoverType, insertionType));
+					 choicesProba.add(s.getChoiceProba());
+
 				}
 				double[] average = average(executions,max);
-				printArray(average);
+				outPutAllAverage(choicesProba,max,4);
 			}
+
 
 		}
 

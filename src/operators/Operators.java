@@ -17,13 +17,15 @@ public class Operators {
 	DistributedRandomNumberGenerator drng;
 	double Pmin;
 	int nb_operators;
+	int iterMax ;
 
 	/**
 	 * Constructeur
 	 * @param nb_perators : le nombre d'operateurs
 	 * @param last_generations : le nombre d'iterations de la fenetre glissante
+	 * @param iterMax : nombre d'iterations maximales
 	 */
-	public Operators(int nb_operators, int last_generations){
+	public Operators(int nb_operators, int last_generations, int iterMax){
 
 		this.nb_operators = nb_operators;
 		last_improvments = new ArrayList<int[]>();
@@ -39,9 +41,10 @@ public class Operators {
 	 */
 	public void addOperator(Operator op){
 		operatorsSet.add(op);
-		Pmin = 1./operatorsSet.size();
+		Pmin = (1./operatorsSet.size())/2;
 		for(int i = 0; i< operatorsSet.size() ; i++){
 			operatorsSet.get(i).setProbability(Pmin);
+			operatorsSet.get(i).setProbaAtStep(Pmin, 0);
 		}
 	}
 
@@ -66,12 +69,18 @@ public class Operators {
 	/**
 	 * Calcul Mise à jour des probabilités de chaque opérateurs
 	 */
-	public void updateProbabilites(){
+	public void updateProbabilites(int iter){
 		int nbOperators = operatorsSet.size();
 		for(int i =0; i < nbOperators ; i++){
 			double utility = operatorsSet.get(i).getUtility();
-			double p =  ((utility/total_utilities)*(1-nbOperators*(Pmin)))+Pmin;
+			double p;
+			if(total_utilities==0){
+				p = Pmin;
+			}else{
+				p= ((((1-nbOperators*Pmin)*utility)/total_utilities)+Pmin);
+			}
 			operatorsSet.get(i).setProbability(p);
+			operatorsSet.get(i).setProbaAtStep(p, iter);
 		}
 
 	}
@@ -81,14 +90,14 @@ public class Operators {
 	 * @param idOp : id de l'operateur
 	 * @param impvt : ameliorations
 	 */
-	public void addImprovment(int idOp, int impvt){
-		if(last_improvments.size() > last_selections_number){
+	public void addImprovment(int idOp, int impvt,int iter){
+		if(last_improvments.size() >= last_selections_number){
 			last_improvments.remove(0);
 		}
 		int[] improvement= {idOp,impvt};
 		last_improvments.add(improvement);
 		updateUtilities();
-		updateProbabilites();
+		updateProbabilites(iter);
 	}
 
 	/**
@@ -157,6 +166,22 @@ public class Operators {
 		operatorsSet.get(idOP).setProbability(1.);
 	}
 
+
+
+	public int getNbOperator(){
+		return operatorsSet.size();
+	}
+
+
+	/**
+	 * Recupère l'opérateur d'indice i
+	 * @param i : position de l'operateur dans la liste d'opérator
+	 * @return
+	 */
+	public Operator getOperator(int i){
+		return operatorsSet.get(i);
+
+	}
 
 
 

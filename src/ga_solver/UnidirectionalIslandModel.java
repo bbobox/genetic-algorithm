@@ -49,7 +49,7 @@ public class UnidirectionalIslandModel {
 	}
 
 	/**
-	 * Calcule la meilleure valeur de fitness de toute les Iles
+	 * Calcule la meilleur valeur de fitness de toute les Iles
 	 * @return
 	 */
 	public int bestFitness(){
@@ -90,7 +90,7 @@ public class UnidirectionalIslandModel {
 				for(int k = 0 ; k<islands.size() ; k++){
 					islands.get(k).evolution(selection, crossover, mutation, insertion);
 					Individual best = islands.get(k).getBestIndividual();
-					 
+					islandsBestIndividuals.add(best);
 					islands.get(k).removeIndividual(best);
 				}
 				// Migration

@@ -3,6 +3,7 @@
 gnuplot <<- EOF
         set xlabel "iterations"
         set ylabel "probabilités"
+	set xrange [0:350]
         set title "Etude des probabilités de selection des opérateurs"
         set term pdf
         set output "mutations_operators.pdf"

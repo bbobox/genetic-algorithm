@@ -19,4 +19,4 @@ esac; shift; done
 
 rm */*.class;
 javac */*.java;
-java ga_solver.Population $selection $crossover $mutation $insertion $pc $pm $size $iter_max $tests $population > "../results/5_flips.dat";
+java ga_solver.Population $selection $crossover $mutation $insertion $pc $pm $size $iter_max $tests $population > "../results/adaptive_wheel.dat";

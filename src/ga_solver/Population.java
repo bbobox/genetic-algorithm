@@ -35,7 +35,12 @@ public class Population {
 	private int improvement;
 	private  int iteration;
 
+	private int[][] fitnessBeforeEvolution;
+	private int[][] fitnessAfterEvolution;
+	private ArrayList<Integer> originOfIndividuals; // ensemble d'origne des individus présent
+	private int nbPop;
 
+	private int[] improvements;
 	public Population( int problemSize, int popSize , int childs, double pc, double pm, int iterMax){
 		population = new ArrayList<Individual>();
 		currentPopulation = new ArrayList<Individual>();
@@ -50,7 +55,8 @@ public class Population {
 		performance = new int[iterMax];
 		mutations = new Operators(4,25,this.iterMax);
 		iteration = 0;
-
+		nbPop = 1;
+		improvements = new  int[nbPop];
 
 		// instanciation et ajout des opérateurs d'operation;
 		OperatorMutation mutationbitFilp = new MutationBitFlip(problemSize, mutationProba);
@@ -67,6 +73,20 @@ public class Population {
 	}
 
 	/**
+	 * Modification du nombre total de population/iles (population voisines+1)
+	 * @param nb
+	 */
+	public void setNbPop(int nb){
+		nbPop = nb;
+		improvements = new int[nbPop];
+	}
+
+
+	public int getPopulationSize() {
+		return currentPopulation.size();
+	}
+
+	/**
 	 * @param nbParents : le nombre d'individus à selectionnés
 	 * à l'initialization
 	 */
@@ -78,6 +98,15 @@ public class Population {
 
 		}
 		currentPopulation = population;
+	}
+
+	/**
+	 * Definition d el'ile d'appartenance de l'ensemble des individus de la population
+	 */
+	public void assignIndividualsToPopulation(int i){
+		for(int k =0; k<currentPopulation.size();k++){
+			currentPopulation.get(k).setIdPopulation(i);
+		}
 	}
 
 	/**
@@ -903,6 +932,100 @@ public class Population {
 		 }
 	 }
 
+	 /**
+	  * Application de l'operateur de mutation sur l'ensemble des individus
+	  * @param type: opératteur de mutation à utiliser
+	  */
+	 public void overallMutationApplication(int type){
+		 updateFitnessBeforeEvolution();
+
+		 for(int i =0; i<currentPopulation.size();i++){
+			 if(type==0){
+				 	currentPopulation.get(i).setRepresentation(this.mutationBitFlip(currentPopulation.get(i)));
+				}
+				else{
+					currentPopulation.get(i).setRepresentation(mutationNFlips(currentPopulation.get(i),type));
+				}
+
+		 }
+		 updateFitnessAfterEvolution();
+
+		 // mise à jour des améliorations
+		 computeImprovements();
+
+	 }
+
+
+	 /**
+	  * Mise à jour et recupération des fitness et des population d'origine
+	  * Avavant l'application de l'evolutuion
+	  */
+	public void updateFitnessBeforeEvolution(){
+		 fitnessBeforeEvolution = new int[2][currentPopulation.size()];
+		 for(int i =0; i<currentPopulation.size();i++){
+			 fitnessBeforeEvolution[0][i]= currentPopulation.get(i).getIdPopulation();
+			 fitnessBeforeEvolution[1][1]= currentPopulation.get(i).getFitness();
+		 }
+
+	}
+
+
+	  /**
+	  * Mise à jour et recupération des fitness et des population d'origine
+	  * Avavant l'application de l'evolutuion
+	  */
+	 public void updateFitnessAfterEvolution(){
+		 fitnessAfterEvolution = new int[2][currentPopulation.size()];
+		 for(int i =0; i<currentPopulation.size();i++){
+			 fitnessAfterEvolution[0][i]= currentPopulation.get(i).getGeneration();
+			 fitnessAfterEvolution[1][i]= currentPopulation.get(i).getFitness();
+		 }
+
+	 }
+
+
+
+	 /**
+	  * Met à jour l'etat d'amelioration des individus
+	  */
+	 public  void improvedIndividual(){
+
+
+	 }
+
+	 /**
+	  * Mise à jour de l'ensemble des populations présente
+	  */
+	 public void updateOriginOfIndividuals(){
+		 originOfIndividuals = new ArrayList<Integer>();
+		 for(int i =0; i<currentPopulation.size();i++){
+			 if(!this.originOfIndividuals.contains(currentPopulation.get(i).getIdPopulation())){
+				 this.originOfIndividuals.add(currentPopulation.get(i).getIdPopulation());
+			}
+		 }
+
+	 }
+
+
+	 /**
+	  * Calcul de l'ensemble des amélorations des individus provenants de chaque iles
+	  */
+	 public void computeImprovements(){
+		 this.improvements = new int[nbPop];
+		 for(int k=0; k<currentPopulation.size(); k++){
+			 int f1= fitnessBeforeEvolution[1][k];
+			 int f2= fitnessAfterEvolution[1][k];
+			 this.improvements[currentPopulation.get(k).getIdPopulation()]+= f2-f1;
+		 }
+
+	 }
+
+
+
+	public int[] getImprovements() {
+		return improvements;
+	}
+
 
 	public static void main(String args[]) throws IOException{
 		ArrayList<int[]> executions = new  ArrayList<int[]>();
@@ -937,6 +1060,7 @@ public class Population {
 				}
 				double[] average = average(executions,max);
 				outPutAllAverage(choicesProba,max,4);
+				printArray(average);
 			}
 
 

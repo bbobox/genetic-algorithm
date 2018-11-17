@@ -14,6 +14,7 @@ public class Individual {
 	int[] representation;
 	int generation;
 	int size;
+	int idPopulation;
 
 	public Individual(int n){
 		 representation = new int[n];
@@ -120,7 +121,17 @@ public class Individual {
 		return i;
 	}
 
-	/*public static void main(String args[]){
+
+
+	public int getIdPopulation() {
+		return idPopulation;
+	}
+
+	public void setIdPopulation(int idPopulation) {
+		this.idPopulation = idPopulation;
+	}
+
+	public static void main(String args[]){
 
 		Individual i = new Individual(11);
 		Individual i2 = i.cloned(); //.clone();
@@ -134,23 +145,7 @@ public class Individual {
 		list.remove(get);
 		System.out.println(list.size());
 
-	}*/
-
-	public static void main( String[] argv ) throws Exception {
-		System.out.println(Math.round(2.5));
-		String  line;
-		Scanner sc = new Scanner(System.in);
-		int number = sc.nextInt();
-		int i = 0;
-		while(i< number) {
-			line = sc.nextLine();
-			String val[] = line.split(line);
-
-			Math.round(2.1);
-
-			/* Lisez les données et effectuez votre traitement */
-		}
-	/* Vous pouvez aussi effectuer votre traitement une fois que vous avez lu toutes les données.*/
-
 	}
+
+
 }

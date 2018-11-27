@@ -5,7 +5,6 @@ cd src;
 while [[ "$#" > 0 ]]; do case $1 in
   -s|--selection) selection="$2"; shift;;
   -c|--crossover) crossover="$2"; shift;;
-  -mut|--mutation) mutation="$2"; shift;;
   -i|--insertion) insertion="$2"; shift;;
   -pop|--population) population="$2"; shift;;
   -t|--tests) tests="$2"; shift;;
@@ -19,4 +18,8 @@ esac; shift; done
 
 rm */*.class;
 javac */*.java;
-java ga_solver.UnidirectionalIslandModel $selection $crossover $mutation $insertion $pc $pm $size $iter_max $tests $population > "../results/5_flips_island.dat";
+java ga_solver.DynamicIslandModel $selection $crossover $insertion $pc $pm $size $iter_max $tests $population > "../results/dynamic_model.dat";
+
+
+
+

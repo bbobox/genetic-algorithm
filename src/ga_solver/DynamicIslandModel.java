@@ -1,5 +1,8 @@
 package ga_solver;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -25,6 +28,7 @@ public class DynamicIslandModel {
 	double alpha;
 	double beta;
 	double[][] N;
+	int[][] islandSize;
 
 
 	private int[] performance;
@@ -46,6 +50,8 @@ public class DynamicIslandModel {
 		this.beta = beta;
 		this.alpha = alpha;
 		N = new double[n][n];
+		rewards = new double[n][n];
+		islandSize = new int[n][this.iterMax];
 
 		//intialiation de la matrice de migration
 		for(int i =0; i<this.n; i++){
@@ -53,9 +59,12 @@ public class DynamicIslandModel {
 				if(i==j){
 					migrationM[i][j]=0.75;
 				}else{
-					migrationM[i][j] = (1-0.75)/n-1;
+					migrationM[i][j] = (1-0.75)/(this.n-1);
 				}
+
 			}
+
+
 		}
 
 	    //initalisation de la matrice de recompenses
@@ -73,6 +82,14 @@ public class DynamicIslandModel {
 		performance = new int[iterMax];
 
 	}
+
+
+
+	public int[][] getIslandSize() {
+		return islandSize;
+	}
+
+
 
 	/**
 	 * Creation  d'un vecteur stochastique aléatoire:
@@ -134,7 +151,7 @@ public class DynamicIslandModel {
 		int pSize = islands.get(i).getPopulationSize();
 		for(int k = 0; k<pSize;k++){
 			islandChoosen= drng.getDistributedRandomNumber();
-			Individual individual = islands.get(i).getCurrentPopulation().get(k).cloned();
+			Individual individual = islands.get(i).getCurrentPopulation().get(0).cloned();
 			individual.setIdPopulation(i);
 			islands.get(i).removeIndividual(0);
 			islands.get(islandChoosen).addIndividual(individual);
@@ -142,9 +159,6 @@ public class DynamicIslandModel {
 
 	}
 
-	public void feedBack(){
-		// determination des amélioration et renvoi de feedback
-	}
 
 	/**
 	 * Mise à jour de la politique de migration de l'ile i
@@ -197,23 +211,31 @@ public class DynamicIslandModel {
 
 
 
-	public int[] run(int selection, int crossover, int mutation, int insertion){
+	public int[] run(int selection, int crossover, int insertion){
 		//Initialisation des  iles;
 		for (int i = 0; i<n ; i++ ){
 			islands.add(new Population(problemSize,popSize/n, 2, crossoverProba, mutationProba , iterMax));
 			islands.get(i).initialization();
+			islands.get(i).setNbPop(n);
 			islands.get(i).assignIndividualsToPopulation(i);
 		}
-		// Evolution des populations
 
+		// Evolution des populations
 		for(int i = 0 ; i< iterMax ; i++){
 			stepCounter = i;
 			// critère d'arret
 			if(!hasBestIndividual()){
+				performance[stepCounter] = bestFitness();
+
+				for(int k =0; k<islands.size() ; k++){
+					this.islandSize[k][stepCounter]=islands.get(k).getPopulationSize();
+				}
+
 				for(int k = 0 ; k<islands.size() ; k++){
 					//Evolution
 					//islands.get(k).evolution(selection, crossover, mutation, insertion);  // evolution à revoir
-					islands.get(k).overallMutationApplication(k); //TO DO k à revoir
+					//islands.get(k).overallMutationApplication(k); //TO DO k à revoir
+					islands.get(k).islandEvolution(selection, crossover, k, insertion, stepCounter);
 
 					// Mise à jour de la politque de la politique de migration
 					updateMigrationPolicy(k);
@@ -222,9 +244,13 @@ public class DynamicIslandModel {
 					migration(k);
 
 				}
+
 			}
 			else{
 				performance[stepCounter] = bestFitness();
+				for(int k =0; k<islands.size() ; k++){
+					this.islandSize[k][stepCounter]=islands.get(k).getPopulationSize();
+				}
 			}
 		}
 
@@ -232,6 +258,118 @@ public class DynamicIslandModel {
 
 		return performance;
 	}
+
+	/**
+	 * Calcule de  la moyenne des resultats obtenus lors des exécutions
+	 * @param executions : ensemble des resultats d'executions
+	 * @param iterMax : nombre maximum d'iterations
+	 * @return
+	 */
+	 static double[] average(ArrayList<int[]> executions, int iterMax) {
+		 int nbExecutions = executions.size();
+		 double[] res = new double[iterMax];
+		 for( int i = 0 ; i< iterMax; i++) {
+			 int cpt=0;
+			 for(int k = 0; k < nbExecutions; k++){
+				 cpt+=executions.get(k)[i];
+			 }
+			 res[i] = (cpt*(1.))/nbExecutions;
+		 }
+
+		return res;
+	}
+
+	 /**
+	  * Affichage des valeurs d'un tableau répresentatif des exécutions
+	  * @param array
+	  */
+	 static void printArray(double[] array){
+		 System.out.println("#iterations fitness");
+		 for (int i=0; i< array.length; i++) {
+			 System.out.println(i+" "+array[i]);
+		 }
+
+	 }
+
+	public void testPrintTable(double [] t){
+		System.out.print("[");
+		for(int i =0 ; i< t.length ; i++){
+			System.out.print(t[i]+",");
+		}
+		System.out.println("]");
+	}
+
+	 /**
+	  * Calcul de la moyenne des tailles de populations
+	  * @param choicesProba : Ensemble des données recoltés sur l'ensemble des exécutions
+	  * @param operatorID :  Id de l'opérateur/ile
+	  * @param iter : nombre max d'itérations
+	  * @return
+	  */
+	 static double[] islandSizeAverage(ArrayList<int[][]> islandSizes, int operatorID, int iter){
+		 int n = islandSizes.size();
+		 double[] average = new double[iter];
+		 int[][] islandAverage = new int[n][iter];
+		 for(int i=0; i< n ; i++){
+			 islandAverage[i] = islandSizes.get(i)[operatorID];
+		 }
+		 for( int i=0; i< iter ; i++){
+			 double cpt = 0 ;
+			 for( int k=0; k< n ; k++){
+
+				 cpt+=  islandAverage[k][i];
+			 }
+			 average[i] = (1.)*cpt/n;
+		 }
+
+		 return average;
+	 }
+
+	 static  void outPutAllAverage(ArrayList<int[][]> islandSizes , int iter, int n) throws IOException{
+
+		 for(int i=0 ; i< n; i++){
+			 printDataInFile("../results/operator_"+i+".dat", islandSizeAverage(islandSizes,i,iter));
+		 }
+	 }
+
+	 static void printDataInFile(String outputFile, double[] data) throws IOException{
+		 BufferedWriter fSortie;
+		 fSortie = new BufferedWriter(new FileWriter(outputFile));
+
+		 fSortie.write("#iterations tailles_populations");fSortie.newLine();
+		 for(int i = 0; i<data.length ; i++){
+			 fSortie.write(i+" "+data[i]); fSortie.newLine();
+
+		 }
+		 fSortie.close();
+	 }
+
+
+	public static void main(String args[]) throws IOException{
+		ArrayList<int[]> executions = new  ArrayList<int[]>();
+		ArrayList<int[][]> islandsSizes = new  ArrayList<int[][]>();
+			int selectionType = Integer.parseInt(args[0]);
+			int crossoverType = Integer.parseInt(args[1]);
+			int insertionType = Integer.parseInt(args[2]);
+			double pc = Double.parseDouble(args[3]);
+			double pm = Double.parseDouble(args[4]);
+			int size = Integer.parseInt(args[5]);
+			int max = Integer.parseInt(args[6]);
+			int tests = Integer.parseInt(args[7]);
+			int popupaltionSize = Integer.parseInt(args[8]);
+			DynamicIslandModel islands = new  DynamicIslandModel(size,popupaltionSize,max,4,pc,pm,0.8,0.1);
+			for (int i = 0; i< tests; i++) {
+				 islands = new  DynamicIslandModel(size,popupaltionSize,max,4,pc,pm,0.8,0.1);
+				// executions.add(
+						 islands.run(selectionType, crossoverType, insertionType);//);
+				 islandsSizes.add(islands.getIslandSize());
+			}
+
+			double[] average = average(executions,max);
+			outPutAllAverage(islandsSizes,max,4);
+			printArray(average);
+
+}
 
 
 

@@ -412,7 +412,7 @@ public class Population {
 	 */
 	public void tournamentSelection(int T){
 		Random rand = new Random();
-		if( populationSize < T ){
+		if( currentPopulation.size() < T ){
 			bestSelection();
 		}
 			else{
@@ -420,9 +420,9 @@ public class Population {
 			ArrayList<Integer> l = new ArrayList<Integer>();
 
 			for(int i = 0; i <T; i++){
-				int  id = rand.nextInt(populationSize);
+				int  id = rand.nextInt(currentPopulation.size());
 				while(l.contains(id)){
-					id = rand.nextInt(populationSize);
+					id = rand.nextInt(currentPopulation.size());
 				}
 				l.add(id);
 				selectionned.add(currentPopulation.get(id).cloned());
@@ -442,10 +442,10 @@ public class Population {
 	 */
 	public void randomSelection(){
 		Random rand = new Random();
-		int  i1 = rand.nextInt(populationSize-1);
-		int i2 = rand.nextInt(populationSize-1);
+		int  i1 = rand.nextInt(currentPopulation.size()-1);
+		int i2 = rand.nextInt(currentPopulation.size()-1);
 		while(i1==i2){
-			i2 = rand.nextInt(populationSize-1);
+			i2 = rand.nextInt(currentPopulation.size()-1);
 		}
 		parents[0] = currentPopulation.get(i1).cloned();
 		parents[1] = currentPopulation.get(i2).cloned();
@@ -940,18 +940,74 @@ public class Population {
 		 updateFitnessBeforeEvolution();
 
 		 for(int i =0; i<currentPopulation.size();i++){
-			 if(type==0){
-				 	currentPopulation.get(i).setRepresentation(this.mutationBitFlip(currentPopulation.get(i)));
-				}
-				else{
-					currentPopulation.get(i).setRepresentation(mutationNFlips(currentPopulation.get(i),type));
-				}
-
+			 currentPopulation.get(i).setRepresentation(mutations.operatorApplication(type, currentPopulation.get(i)));
 		 }
 		 updateFitnessAfterEvolution();
 
 		 // mise à jour des améliorations
 		 computeImprovements();
+
+	 }
+
+
+	 public void islandEvolution(int selection, int crossover, int mutation, int insertion, int generation){
+
+		 int[] popChoosen = new int[nbPop];
+		 this.improvements = new int[nbPop];
+		 int[] fitnessBefore= new int[2];
+		 int[] fitnessAfter= new int[2];
+		 //Mutation
+
+		 if(this.currentPopulation.size()>=2){
+			//-3 Selection ( Tri et selection des 2 meilleurs parents)
+			selectionApplication(selection);
+			popChoosen[parents[0].getIdPopulation()]=1;
+			popChoosen[parents[1].getIdPopulation()]=1;
+
+			//- 4 Croisement
+			if (probableChoice(crossoverProba)){
+
+				this.crossoverApplication(crossover);
+			}
+			else{
+				childs[0] = parents[0].cloned();
+				childs[1] = parents[1].cloned();
+			}
+			childs[0].setGeneration(generation);
+			childs[1].setGeneration(generation);
+
+			//- 5 Mutation ( des deux enfants)
+			// choix de l'operateur  et application de la  mutation
+			if (probableChoice(mutationProba)){
+				improvement = 0;
+				fitnessBefore[0]= childs[0].getFitness(); fitnessBefore[1]= childs[1].getFitness();
+				childs[0].setRepresentation(mutations.operatorApplication(mutation, childs[0]));
+				childs[1].setRepresentation(mutations.operatorApplication(mutation, childs[1]));
+				fitnessAfter[0]= childs[0].getFitness(); fitnessAfter[1]= childs[1].getFitness();
+
+				improvement +=  fitnessAfter[0] - fitnessBefore[0];
+				if(improvement<0){
+					improvement=0;
+				}
+				improvement += improvement +=  fitnessAfter[1] - fitnessBefore[1];
+
+				// mise à jour des amelioration
+				if(improvement>0){
+					for(int i=0; i<this.nbPop; i++){
+						 if(popChoosen[i]==1){
+							 this.improvements[i] = improvement;
+						 }
+					}
+				}
+
+			}
+
+			//-6 Insertion
+			insertionApplication(insertion);
+
+
+		 }
+
 
 	 }
 
@@ -964,7 +1020,7 @@ public class Population {
 		 fitnessBeforeEvolution = new int[2][currentPopulation.size()];
 		 for(int i =0; i<currentPopulation.size();i++){
 			 fitnessBeforeEvolution[0][i]= currentPopulation.get(i).getIdPopulation();
-			 fitnessBeforeEvolution[1][1]= currentPopulation.get(i).getFitness();
+			 fitnessBeforeEvolution[1][i]= currentPopulation.get(i).getFitness();
 		 }
 
 	}
@@ -977,7 +1033,7 @@ public class Population {
 	 public void updateFitnessAfterEvolution(){
 		 fitnessAfterEvolution = new int[2][currentPopulation.size()];
 		 for(int i =0; i<currentPopulation.size();i++){
-			 fitnessAfterEvolution[0][i]= currentPopulation.get(i).getGeneration();
+			 fitnessAfterEvolution[0][i]= currentPopulation.get(i).getIdPopulation();
 			 fitnessAfterEvolution[1][i]= currentPopulation.get(i).getFitness();
 		 }
 
@@ -1017,13 +1073,20 @@ public class Population {
 			 int f2= fitnessAfterEvolution[1][k];
 			 this.improvements[currentPopulation.get(k).getIdPopulation()]+= f2-f1;
 		 }
-
 	 }
 
 
 
 	public int[] getImprovements() {
 		return improvements;
+	}
+
+	public void testPrintTable(int [] t){
+		System.out.print("[");
+		for(int i =0 ; i< t.length ; i++){
+			System.out.print(t[i]+",");
+		}
+		System.out.println("]");
 	}
 
 

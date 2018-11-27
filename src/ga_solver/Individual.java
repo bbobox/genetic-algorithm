@@ -117,6 +117,7 @@ public class Individual {
 		Individual i = new Individual(size);
 		i.setRepresentation(getClonedRepresentation());
 		i.setGeneration(this.getGeneration());
+		i.setIdPopulation(this.getIdPopulation());
 
 		return i;
 	}

@@ -39,6 +39,7 @@ public class Population {
 	private int[][] fitnessAfterEvolution;
 	private ArrayList<Integer> originOfIndividuals; // ensemble d'origne des individus présent
 	private int nbPop;
+	private double[] averageImprovements;
 
 	private int[] improvements;
 	public Population( int problemSize, int popSize , int childs, double pc, double pm, int iterMax){
@@ -57,6 +58,7 @@ public class Population {
 		iteration = 0;
 		nbPop = 1;
 		improvements = new  int[nbPop];
+		averageImprovements = new double[nbPop];
 
 		// instanciation et ajout des opérateurs d'operation;
 		OperatorMutation mutationbitFilp = new MutationBitFlip(problemSize, mutationProba);
@@ -79,6 +81,7 @@ public class Population {
 	public void setNbPop(int nb){
 		nbPop = nb;
 		improvements = new int[nbPop];
+		averageImprovements = new double[nbPop];
 	}
 
 
@@ -834,9 +837,7 @@ public class Population {
 				i++;
 			}
 
-
 			int counter = bestIndividuals.size();
-
 
 			if(counter > 1){
 				Random rand = new Random();
@@ -946,7 +947,6 @@ public class Population {
 
 		 // mise à jour des améliorations
 		 computeImprovements();
-
 	 }
 
 
@@ -956,6 +956,7 @@ public class Population {
 		 this.improvements = new int[nbPop];
 		 int[] fitnessBefore= new int[2];
 		 int[] fitnessAfter= new int[2];
+		 improvement = 0;
 		 //Mutation
 
 		 if(this.currentPopulation.size()>=2){
@@ -979,17 +980,16 @@ public class Population {
 			//- 5 Mutation ( des deux enfants)
 			// choix de l'operateur  et application de la  mutation
 			if (probableChoice(mutationProba)){
-				improvement = 0;
 				fitnessBefore[0]= childs[0].getFitness(); fitnessBefore[1]= childs[1].getFitness();
 				childs[0].setRepresentation(mutations.operatorApplication(mutation, childs[0]));
 				childs[1].setRepresentation(mutations.operatorApplication(mutation, childs[1]));
 				fitnessAfter[0]= childs[0].getFitness(); fitnessAfter[1]= childs[1].getFitness();
 
-				improvement +=  fitnessAfter[0] - fitnessBefore[0];
+				improvement +=  (fitnessAfter[0] - fitnessBefore[0]);
 				if(improvement<0){
 					improvement=0;
 				}
-				improvement += improvement +=  fitnessAfter[1] - fitnessBefore[1];
+				improvement +=  (fitnessAfter[1] - fitnessBefore[1]);
 
 				// mise à jour des amelioration
 				if(improvement>0){
@@ -1004,10 +1004,9 @@ public class Population {
 
 			//-6 Insertion
 			insertionApplication(insertion);
-
-
 		 }
-
+		// System.out.println("amelioration op="+mutation);
+		// this.testPrintTable(improvements);
 
 	 }
 
@@ -1068,14 +1067,41 @@ public class Population {
 	  */
 	 public void computeImprovements(){
 		 this.improvements = new int[nbPop];
+		 this.averageImprovements = new double[nbPop];
+		 //initArray(this.averageImprovements);
+		 int[] originIslandRepartition = new int[nbPop];
+		 int originIsland;
 		 for(int k=0; k<currentPopulation.size(); k++){
-			 int f1= fitnessBeforeEvolution[1][k];
-			 int f2= fitnessAfterEvolution[1][k];
-			 this.improvements[currentPopulation.get(k).getIdPopulation()]+= f2-f1;
+			 int f1 = fitnessBeforeEvolution[1][k];
+			 int f2 = fitnessAfterEvolution[1][k];
+			 originIsland = currentPopulation.get(k).getIdPopulation();
+			 originIslandRepartition[originIsland]+=1;
+			 this.improvements[originIsland]+= f2-f1;
 		 }
+
+		 for(int k=0; k<nbPop; k++){
+			 if(originIslandRepartition[k]>0){
+				this.averageImprovements[k]=(this.improvements[k]*(1.))/originIslandRepartition[k];
+			 }
+		 }
+		// this.printArray(averageImprovements);
+		// Sytem.out.println
+	 }
+
+	 /**
+	  * Recuperation de la liste des
+	  * @return
+	  */
+	 public double[] getAverageImprovements(){
+		 return this.averageImprovements;
 	 }
 
 
+	public void initArray(double[] t){
+		for(int k=0; k<t.length; k++){
+			t[k]=0*(1.);
+		}
+	}
 
 	public int[] getImprovements() {
 		return improvements;
@@ -1123,7 +1149,7 @@ public class Population {
 				}
 				double[] average = average(executions,max);
 				outPutAllAverage(choicesProba,max,4);
-				printArray(average);
+				//printArray(average);
 			}
 
 

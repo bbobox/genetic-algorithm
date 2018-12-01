@@ -2,8 +2,8 @@
 
 gnuplot <<- EOF
         set xlabel "iterations"
-        set ylabel "probabilités"
-	set xrange [0:350]
+        set ylabel "taille popoulations"
+	set xrange [0:1500]
         set title "Etude des tailles de populations dans le model en iles dynamiques"
         set term pdf
         set output "mutations_operators_MID.pdf"

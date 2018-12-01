@@ -16,6 +16,8 @@ public class Individual {
 	int size;
 	int idPopulation;
 
+	//ArrayList<Individual> parents;
+
 	public Individual(int n){
 		 representation = new int[n];
 		 size = n;

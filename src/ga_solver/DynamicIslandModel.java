@@ -159,20 +159,38 @@ public class DynamicIslandModel {
 
 	}
 
+	public double getMaxValue(double[] t){
+		int iMax = 0;
+		double maxVal=0;
+		for(int i = 0 ; i< t.length; i++){
+			if(t[i]>t[iMax]){
+				iMax=i;
+				maxVal = t[iMax];
+			}
+		}
+
+		return maxVal;
+	}
+
 
 	/**
 	 * Mise à jour de la politique de migration de l'ile i
 	 * @param i
 	 */
 	public void updateMigrationPolicy(int i){
-		int[] feedback= new int[n];
+		double[] feedback= new double[n];
 		rewards[i]=new double[n];
 
 		//feedbacks
 		int improvements_cpt=0;
 		for (int k =0; k<n; k++){
-			feedback[k]=islands.get(k).getImprovements()[i];
-			if(feedback[k]>0){
+			feedback[k]=islands.get(k).getAverageImprovements()[i];
+		}
+
+		double maxValue = getMaxValue(feedback);
+
+		for (int k =0; k<n; k++){
+			if(feedback[k]>0 && feedback[k]==maxValue){
 				improvements_cpt++;
 			}
 		}
@@ -180,7 +198,7 @@ public class DynamicIslandModel {
 		// Calcul de recompenses
 		if(improvements_cpt>0){
 			for (int k =0; k<n; k++){
-				if (feedback[k]>0){
+				if (feedback[k]>0 && feedback[k]==maxValue){
 					rewards[i][k]=1./improvements_cpt;
 				}
 			}
@@ -222,6 +240,7 @@ public class DynamicIslandModel {
 
 		// Evolution des populations
 		for(int i = 0 ; i< iterMax ; i++){
+			//System.out.println("iteration =========== "+i+" ===============");
 			stepCounter = i;
 			// critère d'arret
 			if(!hasBestIndividual()){
@@ -234,8 +253,8 @@ public class DynamicIslandModel {
 				for(int k = 0 ; k<islands.size() ; k++){
 					//Evolution
 					//islands.get(k).evolution(selection, crossover, mutation, insertion);  // evolution à revoir
-					//islands.get(k).overallMutationApplication(k); //TO DO k à revoir
-					islands.get(k).islandEvolution(selection, crossover, k, insertion, stepCounter);
+					islands.get(k).overallMutationApplication(k); //TO DO k à revoir
+					//islands.get(k).islandEvolution(selection, crossover, k, insertion, stepCounter);
 
 					// Mise à jour de la politque de la politique de migration
 					updateMigrationPolicy(k);

@@ -3,7 +3,7 @@
 cd .;
 gnuplot <<- EOF
         set xlabel "iterations"
-	set yrange [0:250]
+	set yrange [0:500]
         set ylabel "fitness"
         set title "Analyse des opérateurs d'insertion"
         set term png

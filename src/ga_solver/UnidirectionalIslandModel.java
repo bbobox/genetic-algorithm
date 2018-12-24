@@ -55,8 +55,8 @@ public class UnidirectionalIslandModel {
 	public int bestFitness(){
 		int res = 0;
 		for (int i=0; i<islands.size() ; i++){
-			if (islands.get(i).bestFitness()>res){
-				res = islands.get(i).bestFitness();
+			if ((Integer) islands.get(i).bestFitness()>res){
+				res = (Integer) islands.get(i).bestFitness();
 			}
 		}
 		return res;
@@ -75,7 +75,7 @@ public class UnidirectionalIslandModel {
 		int stepCounter = 0;
 		//Initialisation des  iles;
 		for (int i = 0; i<m ; i++ ){
-			islands.add(new Population(problemSize,popSize/m, nbChilds, crossoverProba, mutationProba , iterMax));
+			islands.add(new BitArrayIndividualsPopulation(problemSize,popSize/m, nbChilds, crossoverProba, mutationProba , iterMax));
 			islands.get(i).initialization();
 		}
 

@@ -1,4 +1,4 @@
-package ga_solver;
+package utilities;
 
 import java.util.HashMap;
 import java.util.Map;

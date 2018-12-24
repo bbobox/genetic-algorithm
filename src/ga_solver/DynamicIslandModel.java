@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import utilities.DistributedRandomNumberGenerator;
+
 
 public class DynamicIslandModel {
 
@@ -151,7 +153,7 @@ public class DynamicIslandModel {
 		int pSize = islands.get(i).getPopulationSize();
 		for(int k = 0; k<pSize;k++){
 			islandChoosen= drng.getDistributedRandomNumber();
-			Individual individual = islands.get(i).getCurrentPopulation().get(0).cloned();
+			Individual individual =(Individual) islands.get(i).getCurrentPopulation().get(0);
 			individual.setIdPopulation(i);
 			islands.get(i).removeIndividual(0);
 			islands.get(islandChoosen).addIndividual(individual);
@@ -219,8 +221,8 @@ public class DynamicIslandModel {
 	public int bestFitness(){
 		int res = 0;
 		for (int i=0; i<islands.size() ; i++){
-			if (islands.get(i).bestFitness()>res){
-				res = islands.get(i).bestFitness();
+			if ((Integer)islands.get(i).bestFitness()>res){
+				res = (Integer) islands.get(i).bestFitness();
 			}
 		}
 		return res;
@@ -232,7 +234,7 @@ public class DynamicIslandModel {
 	public int[] run(int selection, int crossover, int insertion){
 		//Initialisation des  iles;
 		for (int i = 0; i<n ; i++ ){
-			islands.add(new Population(problemSize,popSize/n, 2, crossoverProba, mutationProba , iterMax));
+			islands.add(new BitArrayIndividualsPopulation(problemSize,popSize/n, 2, crossoverProba, mutationProba , iterMax));
 			islands.get(i).initialization();
 			islands.get(i).setNbPop(n);
 			islands.get(i).assignIndividualsToPopulation(i);
@@ -240,7 +242,6 @@ public class DynamicIslandModel {
 
 		// Evolution des populations
 		for(int i = 0 ; i< iterMax ; i++){
-			//System.out.println("iteration =========== "+i+" ===============");
 			stepCounter = i;
 			// critère d'arret
 			if(!hasBestIndividual()){

@@ -1,9 +1,10 @@
 package operators;
 
-import ga_solver.DistributedRandomNumberGenerator;
 import ga_solver.Individual;
 
 import java.util.ArrayList;
+
+import utilities.DistributedRandomNumberGenerator;
 
 public class Operators {
 

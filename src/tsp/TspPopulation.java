@@ -179,7 +179,7 @@ public class TspPopulation implements Population<Double> {
 	}
 
 	/**
-	 * Effectue le croissement monopoint de deux individus parents
+	 * Effectue le croissement  de deux individus parents: methode pmx
 	 * @param i1
 	 * @param i2
 	 * @return les deux individus enfants generés
@@ -189,13 +189,105 @@ public class TspPopulation implements Population<Double> {
 
 		Individual child1 = i1.cloned();
 		Individual child2 = i2.cloned();
-		child1.setRepresentation(this.createChild(i1, i2, 3));
-		child2.setRepresentation(this.createChild(i2, i1, 3));
+		child1.setRepresentation(this.offspringGenerationOrd1(i1, i2, 3));
+		child2.setRepresentation(this.offspringGenerationOrd1(i2, i1, 3));
 
 		individuals[0] = child1;
 		individuals[1] = child2;
 
 		return individuals;
+	}
+
+	/**
+	 *
+	 * @param i1
+	 * @param i2
+	 * @return
+	 */
+	public Individual[] pmxCrossover(Individual i1, Individual i2){
+		Individual[] individuals = new Individual[2];
+
+		Individual child1 = i1.cloned();
+		Individual child2 = i2.cloned();
+		child1.setRepresentation(this.offspringGenerationPmx(i1, i2, 4));
+		child2.setRepresentation(this.offspringGenerationPmx(i2, i1, 4));
+
+		individuals[0] = child1;
+		individuals[1] = child2;
+
+		return individuals;
+	}
+
+
+
+	/**
+	 * croisement la me methode de PMX:  Partially Mapped Crossover
+	 *
+	 */
+	public int[]  offspringGenerationPmx(Individual parent1,Individual parent2,  int subsetSize){
+		int[] representation1 = parent1.getRepresentation();
+		int[] representation2 = parent2.getRepresentation();
+		int[] childRepresentation = new int[representation1.length];
+		Random rand = new Random();
+		ArrayFunction af = new ArrayFunction();
+		af.fill(childRepresentation, -1);
+
+		int i0 = rand.nextInt(representation1.length);
+		while(i0+subsetSize>representation1.length){
+			 i0= rand.nextInt(representation1.length);
+		}
+
+
+		// etape 1
+		int[] subSet1 = new int[subsetSize];
+		int[] subSet2 = new int[subsetSize];
+		int k=0;
+		for(int i=i0; i<i0+subsetSize;i++){
+			childRepresentation[i]=representation1[i];
+			subSet1[k]=representation1[i];
+			subSet2[k] = representation2[i];
+			k++;
+		}
+
+		// etape 2
+		int value1, value2, id, positionValue;
+		for(int i=i0; i<i0+subsetSize;i++){
+			value2 = representation2[i];
+			if (!af.contains(subSet1, value2)){
+				id= i;
+				value1= representation1[id];
+				while(af.contains(subSet2, value1)){
+					value2 = value1;
+					id= af.getValuePosition(representation2, value1);
+					value1 = representation1[id];
+				}
+				id= af.getValuePosition(representation2, value1);
+				childRepresentation[id] = representation2[i];
+			}
+		}
+
+		//Etape 3
+		int ichild =0, iParents2=0,value;
+		while(iParents2<representation1.length && ichild<representation1.length ){
+			value =  representation2[iParents2];
+
+			if(af.contains(childRepresentation, value)){
+				iParents2++;
+			}
+			else{
+				if(childRepresentation[ichild]!=-1){
+					ichild++;
+				}else{
+					childRepresentation[ichild]=value;
+					ichild++;
+					iParents2++;
+				}
+			}
+
+		}
+
+
+		return childRepresentation;
 	}
 
 	/**
@@ -205,7 +297,7 @@ public class TspPopulation implements Population<Double> {
 	 * @param subsetSize : taille du sous chemin
 	 * @return
 	 */
-	public int[] createChild(Individual parent1,Individual parent2, int subsetSize ){
+	public int[] offspringGenerationOrd1(Individual parent1,Individual parent2, int subsetSize ){
 		int[] representation1 = parent1.getRepresentation();
 		int[] representation2 = parent2.getRepresentation();
 		int[] childRepresentation = new int[representation1.length];
@@ -217,7 +309,6 @@ public class TspPopulation implements Population<Double> {
 			 i0= rand.nextInt(representation1.length);
 		}
 
-		int[] subSet= new int[subsetSize];
 		for(int i=i0; i<i0+subsetSize;i++){
 			childRepresentation[i]=representation1[i];
 		}
@@ -619,6 +710,8 @@ public class TspPopulation implements Population<Double> {
 			case 1:
 				childs = this.order1Crossover(parents[0],parents[1]);
 				break;
+			case 2:
+				childs = this.pmxCrossover(parents[0],parents[1]);
 			default:
 				childs = this.order1Crossover(parents[0],parents[1]);
 				break;

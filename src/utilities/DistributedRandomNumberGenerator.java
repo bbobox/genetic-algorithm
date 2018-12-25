@@ -34,6 +34,7 @@ public class DistributedRandomNumberGenerator {
         return 0;
     }
 
+
     public static void main(String args[]){
     	DistributedRandomNumberGenerator drng = new DistributedRandomNumberGenerator();
         drng.addNumber(1, 0.1);

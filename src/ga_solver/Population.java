@@ -195,29 +195,7 @@ public interface Population<T> {
 	 * Application d'une methode par selection adaptative
 	 * @param type
 	 */
-	public void adaptiveWheelMutationApplication(int type);/*{
-		improvement = 0;
-		if(type==0){
-			int[] afterMutation1 = this.mutationBitFlip(childs[0]);
-			improvement += improvement(childs[0].getRepresentation(),afterMutation1);
-			childs[0].setRepresentation(afterMutation1);
-
-			int[] afterMutation2 = this.mutationBitFlip(childs[1]);
-			improvement += improvement(childs[1].getRepresentation(),afterMutation2);
-			childs[1].setRepresentation(afterMutation2);
-
-		}
-		else{
-			int[] afterMutation1 = mutationNFlips(childs[0],type);
-			improvement += improvement(childs[0].getRepresentation(),afterMutation1);
-			childs[0].setRepresentation(afterMutation1);
-
-			int[] afterMutation2 = mutationNFlips(childs[1],type);
-			improvement += improvement(childs[0].getRepresentation(),afterMutation2);
-			childs[1].setRepresentation(afterMutation2);
-		}
-	}*/
-
+	public void adaptiveWheelMutationApplication(int type);
 	/**
 	 * Application d'une methode de mutation
 	 * @param type

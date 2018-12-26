@@ -218,10 +218,30 @@ public class TspPopulation implements Population<Double> {
 		return individuals;
 	}
 
+	/**
+	 *
+	 * @param i1
+	 * @param i2
+	 * @return
+	 */
+	public Individual[] cycleCrossover(Individual i1, Individual i2){
+		Individual[] individuals = new Individual[2];
+
+		Individual child1 = i1.cloned();
+		Individual child2 = i2.cloned();
+		child1.setRepresentation(this.offspringGenerationCycle(i1, i2));
+		child2.setRepresentation(this.offspringGenerationCycle(i2, i1));
+
+		individuals[0] = child1;
+		individuals[1] = child2;
+
+		return individuals;
+	}
+
 
 
 	/**
-	 * croisement la me methode de PMX:  Partially Mapped Crossover
+	 * croisement pa la methode de PMX:  Partially Mapped Crossover
 	 *
 	 */
 	public int[]  offspringGenerationPmx(Individual parent1,Individual parent2,  int subsetSize){
@@ -287,6 +307,66 @@ public class TspPopulation implements Population<Double> {
 		}
 
 
+		return childRepresentation;
+	}
+
+	/**
+	 * croisement la me methode de CX: offspringGenerationCyle
+	 * @param parent1
+	 * @param parent2
+	 * @return
+	 */
+	public int[] offspringGenerationCycle(Individual parent1,Individual parent2){
+		int[] representation1 = parent1.getRepresentation();
+		int[] representation2 = parent2.getRepresentation();
+
+		// step 1: cyle 1 indentification
+		int i1; int i2 = 0;
+		ArrayList<Integer> firstCyle= new ArrayList<Integer>();
+		ArrayList<Integer> secondCyle = new ArrayList<Integer>();
+		ArrayFunction af = new ArrayFunction();
+		ArrayList<Integer> cycles[];// = {firstCyle,secondCyle};
+		//cycles[0]=firstCyle;
+		int[] childRepresentation = representation1;
+
+		int firstPosition = 0;
+		int allele2= representation2[firstPosition];
+		i1=af.getValuePosition(representation1, allele2);
+
+		while( i1!=firstPosition){
+			firstCyle.add(i1);
+			allele2 = representation2[i1];
+			i1=af.getValuePosition(representation1, allele2);
+		}
+		firstCyle.add(firstPosition);
+
+		// step 2: cyle 2 indentification
+		firstPosition = 0;
+		 while(firstCyle.contains(firstPosition)){
+			 firstPosition++;
+		}
+		 if(firstCyle.size()<representation1.length){
+
+			allele2= representation2[firstPosition];
+			i1=af.getValuePosition(representation1, allele2);
+			while( i1!=firstPosition){
+				secondCyle.add(i1);
+				allele2 = representation2[i1];
+				i1=af.getValuePosition(representation1, allele2);
+			}
+			secondCyle.add(firstPosition);
+
+			int alleleId;
+			for(int i = 0 ; i<firstCyle.size();i++){
+				alleleId = firstCyle.get(i);
+				childRepresentation[alleleId]= representation1[alleleId];
+			}
+
+				for(int i = 0 ; i<secondCyle.size();i++){
+					alleleId = secondCyle.get(i);
+					childRepresentation[alleleId]= representation2[alleleId];
+				}
+		}
 		return childRepresentation;
 	}
 
@@ -712,10 +792,11 @@ public class TspPopulation implements Population<Double> {
 				break;
 			case 2:
 				childs = this.pmxCrossover(parents[0],parents[1]);
+			case 3:
+				childs = this.cycleCrossover(parents[0],parents[1]);
 			default:
 				childs = this.order1Crossover(parents[0],parents[1]);
 				break;
-
 		}
 	}
 

@@ -73,12 +73,14 @@ public class ArrayFunction<T> {
 		//System.out.print(i.getFitness());
 
 		int[] t1 = {1,2,3,4,5,6,7,8,9};
+		int[] t3 = {9,8,7,6,1,5,4,3,2};
 
 		int[] t2 = {9,3,7,8,2,6,5,1,4};
-
-
+		//af.offspringGenerationCyle(t1, t2);
 
 	}
+
+
 
 
 }

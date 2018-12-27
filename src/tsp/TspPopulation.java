@@ -442,6 +442,65 @@ public class TspPopulation implements Population<Double> {
 		return representation;
 	}
 
+	/**
+	 *
+	 * @param child
+	 * @return
+	 */
+	public int[] inversionMutation(Individual child){
+		int[] representation = child.getClonedRepresentation();
+		Random rand = new Random();
+		ArrayFunction af = new ArrayFunction();
+		int idCity1, idCity2;
+		idCity1 = rand.nextInt(representation.length-1);
+
+		idCity2 = rand.nextInt(representation.length-1-idCity1)+idCity1+1;
+		representation = af.inverse(representation, idCity1, idCity2);
+		return representation;
+	}
+
+
+	/**
+	 * Mutution par Inserttion
+	 * @param child
+	 */
+	public int[] insertMutation(Individual  child){
+		int[] representation = child.getClonedRepresentation();
+		Random rand = new Random();
+		int idCity1, idCity2, swap;
+		idCity1 = rand.nextInt(representation.length-1);
+
+		idCity2 = rand.nextInt(representation.length-1-idCity1)+idCity1+1;
+		swap=representation[idCity2];
+
+		for(int i=idCity2 ; i>idCity1+1 ;i--){
+			representation[i]=representation[i-1];
+		}
+		representation[idCity1+1]=swap;
+
+		return representation;
+	}
+
+
+	/**
+	 *
+	 * @param child
+	 * @return
+	 */
+	public int[] scrambleMutation(Individual child){
+		int[] representation = child.getClonedRepresentation();
+		Random rand = new Random();
+		ArrayFunction af = new ArrayFunction();
+		int idCity1, idCity2;
+		idCity1 = rand.nextInt(representation.length-1);
+
+		idCity2 = rand.nextInt(representation.length-1-idCity1)+idCity1+1;
+		af.suffle(representation, idCity1, idCity2);
+		return representation;
+	}
+
+
+
 
 
 
@@ -792,8 +851,10 @@ public class TspPopulation implements Population<Double> {
 				break;
 			case 2:
 				childs = this.pmxCrossover(parents[0],parents[1]);
+				break;
 			case 3:
 				childs = this.cycleCrossover(parents[0],parents[1]);
+				break;
 			default:
 				childs = this.order1Crossover(parents[0],parents[1]);
 				break;
@@ -832,14 +893,28 @@ public class TspPopulation implements Population<Double> {
 	 * @param type
 	 */
 	public void mutationApplication(int type){
-		if(type==0){
-			childs[0].setRepresentation(this.swapMutation(childs[0]));
-			childs[1].setRepresentation(this.swapMutation(childs[1]));
+		switch(type){
+			case 1:
+				childs[0].setRepresentation(this.swapMutation(childs[0]));
+				childs[1].setRepresentation(this.swapMutation(childs[1]));
+				break;
+			case 2:
+				childs[0].setRepresentation(this.insertMutation(childs[0]));
+				childs[1].setRepresentation(this.insertMutation(childs[1]));
+				break;
+			case 3:
+				childs[0].setRepresentation(this.inversionMutation(childs[0]));
+				childs[1].setRepresentation(this.inversionMutation(childs[1]));
+			case 4:
+				childs[0].setRepresentation(this.scrambleMutation(childs[0]));
+				childs[1].setRepresentation(this.scrambleMutation(childs[1]));
+
+			default:
+				childs[0].setRepresentation(this.swapMutation(childs[0]));
+				childs[1].setRepresentation(this.swapMutation(childs[1]));
+				break;
 		}
-		else{
-			childs[0].setRepresentation(swapMutation(childs[0]));
-			childs[1].setRepresentation(swapMutation(childs[1]));
-		}
+
 	}
 
 	/**

@@ -4,7 +4,9 @@ import ga_solver.Individual;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 import tsp.Parser;
@@ -61,6 +63,55 @@ public class ArrayFunction<T> {
 	}
 
 
+	public int[] inverse(int[] arr){
+		int i0=0;
+		int in=arr.length-1;
+		return inverse(arr,i0,in);
+
+	}
+
+	public int[] inverse(int[] arr,int i0,int in){
+		if(i0>=in){
+			return arr;
+		}
+		else{
+			int swap = arr[i0];
+			arr[i0]=arr[in];
+			arr[in]= swap;
+			i0++;
+			in--;
+			arr=inverse(arr,i0,in);
+		}
+		return arr;
+	}
+
+	/**
+	 * Generation d'une permutation aléatoire
+	 * @param arr
+	 */
+	 public void suffle( int arr[]){
+		 int i0=0;
+		 int in= arr.length;
+		 suffle(arr,i0,in);
+	 }
+    public void suffle( int arr[],int i0,int in)
+    {
+
+        Random r = new Random();
+
+        for (int i = in-1; i > i0; i--) {
+
+            // Pick a random index from 0 to i
+            int j = r.nextInt(i+1);
+
+            // Swap arr[i] with the element at random index
+            int temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+    }
+
+
 	public static void main(String args[]) throws IOException{
 		Parser p = new  Parser();
 		p.getDistancesMatrix("a280.tsp");
@@ -72,11 +123,15 @@ public class ArrayFunction<T> {
 		//System.out.print(af.getValuePosition(t,152));
 		//System.out.print(i.getFitness());
 
-		int[] t1 = {1,2,3,4,5,6,7,8,9};
+		int[] t1 = {1,2,3,4,5,6,7,8,9,10};
 		int[] t3 = {9,8,7,6,1,5,4,3,2};
 
 		int[] t2 = {9,3,7,8,2,6,5,1,4};
-		//af.offspringGenerationCyle(t1, t2);
+		//af.insertMutation(t1);
+		////af.offspringGenerationCyle(t1, t2);
+		af.print(t1);
+		af.suffle(t1);
+		af.print(t1);
 
 	}
 

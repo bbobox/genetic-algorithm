@@ -19,10 +19,8 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 
-import operators.MutationBitFlip;
 import operators.MutationInsert;
 import operators.MutationInversion;
-import operators.MutationNFilps;
 import operators.MutationScramble;
 import operators.MutationSwap;
 import operators.Operator;
@@ -572,53 +570,46 @@ public class TspPopulation implements Population<Double> {
 	 *  remplacement des individus les moins bons (fitness)
 	 */
 	public void childrenInsertion1(){
-		Collections.sort(currentPopulation, this.fitnessComparator );
+		Collections.sort(currentPopulation, fitnessComparator);
 
-		int size = currentPopulation.size();
-		if((Double)childs[1].getFitness()<= (Double)currentPopulation.get(size-1).getFitness()){
-			currentPopulation.remove(size-1);
-			currentPopulation.add(childs[0].cloned());
-		}
-		Collections.sort(currentPopulation, this.fitnessComparator);
+		int n =  currentPopulation.size();
+		Individual cpyI1 = currentPopulation.get(n-1).cloned();
+		Individual cpyI2 = currentPopulation.get(n-2).cloned();
+		currentPopulation.remove(n-1);
+		currentPopulation.remove(n-2);
+		ArrayList<Individual> tempList = new ArrayList<Individual>();
 
-		size = currentPopulation.size();
-
-		if((Double)childs[0].getFitness() <= (Double)currentPopulation.get(size-1).getFitness()){
-			currentPopulation.remove(size-1);
-			currentPopulation.add(childs[1].cloned());
-		}
-
-		/*currentPopulation.remove(populationSize-1);
-		currentPopulation.remove(populationSize-2);
-		currentPopulation.add(childs[0]);
-		currentPopulation.add(childs[1]);*/
+		tempList.add(childs[1].cloned());
+		tempList.add(childs[0].cloned());
+		tempList.add(cpyI1);
+		tempList.add(cpyI2);
+		Collections.sort(tempList, fitnessComparator);
+		currentPopulation.add(tempList.get(0)); tempList.remove(0);
+		currentPopulation.add(tempList.get(0)); tempList.remove(0);
 	}
+
 
 	/**
 	 * Insertion des deux enfants generés dans la population et
 	 * remplacement des individus les plus agés
 	 */
 	public void childrenInsertion2(){
-		/*Collections.sort(currentPopulation, this.IndividualAgeComparator);
-		currentPopulation.remove(populationSize-1);
-		currentPopulation.remove(populationSize-2);
-		currentPopulation.add(childs[0].cloned());
-		currentPopulation.add(childs[1].cloned());*/
+		Collections.sort(currentPopulation, ageComparator);
 
-		Collections.sort(currentPopulation, this.ageComparator);
-		int size = currentPopulation.size();
-		if(Double.compare( (Double)childs[0].getFitness(),(Double) currentPopulation.get(size-1).getFitness())!=1){
-			currentPopulation.remove(size-1);
-			currentPopulation.add(childs[0].cloned());
-		}
-		Collections.sort(currentPopulation, this.ageComparator);
-		size = currentPopulation.size();
+		int n =  currentPopulation.size();
+		Individual cpyI1 = currentPopulation.get(n-1).cloned();
+		Individual cpyI2 = currentPopulation.get(n-2).cloned();
+		currentPopulation.remove(n-1);
+		currentPopulation.remove(n-2);
+		ArrayList<Individual> tempList = new ArrayList<Individual>();
 
-		if(Double.compare((Double)childs[1].getFitness(),(Double) currentPopulation.get(size-1).getFitness())!=1){
-			currentPopulation.remove(size-1);
-			currentPopulation.add(childs[1].cloned());
-
-		}
+		tempList.add(childs[1].cloned());
+		tempList.add(childs[0].cloned());
+		tempList.add(cpyI1);
+		tempList.add(cpyI2);
+		Collections.sort(tempList, fitnessComparator);
+		currentPopulation.add(tempList.get(0)); tempList.remove(0);
+		currentPopulation.add(tempList.get(0)); tempList.remove(0);
 
 	}
 

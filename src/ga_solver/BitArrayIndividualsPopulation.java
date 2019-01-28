@@ -1144,7 +1144,6 @@ public class BitArrayIndividualsPopulation implements Population<Integer> {
 				printArray(average);
 			}
 
-
 		}
 
 	}

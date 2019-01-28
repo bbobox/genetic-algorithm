@@ -19,4 +19,4 @@ esac; shift; done
 
 rm */*.class;
 javac */*.java;
-java ga_solver.UnidirectionalIslandModel $selection $crossover $mutation $insertion $pc $pm $size $iter_max $tests $population > "../results/5_flips_island.dat";
+java ga_solver.UnidirectionalIslandModel $selection $crossover $mutation $insertion $pc $pm $size $iter_max $tests $population > "../results/1_flips_island.dat";

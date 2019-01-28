@@ -141,44 +141,6 @@ public class Solution implements Individual<Double> {
 	}
 
 
-	public static  Comparator<Solution> IndividualFintessComparator = new Comparator<Solution>() {
-
-		public int compare(Solution i1, Solution i2) {
-
-		   Double evalOfIndividual1 =   i2.getFitness();
-		   Double evalOfIndividual2 =  i2.getFitness();
-
-		   //ascending order
-		   return evalOfIndividual1.compareTo( evalOfIndividual2) ; //Double.compare(evalOfIndividual2, evalOfIndividual1)-1;
-
-		   //descending order
-		  // return  evalOfIndividual2 - evalOfIndividual1;
-	   }
-
-
-	};
-
-	public static Comparator<Solution> IndividualAgeComparator = new Comparator<Solution>() {
-
-		public int compare(Solution i1, Solution i2) {
-		   int evalOfIndividual1 = i1.getGeneration();
-		   int evalOfIndividual2 = i2.getGeneration();
-
-		   //ascending order
-		   //return evalOfIndividual1 - evalOfIndividual2;
-
-		   //descending order
-		   return evalOfIndividual2 - evalOfIndividual1;
-	    }
-	};
-
-
-
-
-
-
-
-
 	public static void main(String args[]){
 
 		ArrayList<Solution> list = new ArrayList<Solution>();
@@ -196,7 +158,7 @@ public class Solution implements Individual<Double> {
 		list.add(s1);
 		list.add(s2);
 		list.add(s3);
-		Collections.sort(list,new SortByFitness());
+		Collections.sort(list,new FintessComparator());
 
 		for(int i = 0; i<list.size() ; i++){
 			System.out.println(list.get(i).getFitness());
@@ -208,12 +170,27 @@ public class Solution implements Individual<Double> {
 
 }
 
-class SortByFitness implements Comparator<Individual> {
+	class FintessComparator implements Comparator<Individual> {
     public int compare(Individual a, Individual b) {
         if ( (Double) a.getFitness() < (Double) b.getFitness() ){ return -1;}
         else if ( a.getFitness() == b.getFitness() ) return 0;
         else return 1;
     }
 
+	}
 
-}
+	class AgeComparator implements Comparator<Individual> {
+		public int compare(Individual i1, Individual i2) {
+			   int evalOfIndividual1 = i1.getGeneration();
+			   int evalOfIndividual2 = i2.getGeneration();
+
+			   //ascending order
+			   //return evalOfIndividual1 - evalOfIndividual2;
+
+			   //descending order
+			   return evalOfIndividual2 - evalOfIndividual1;
+		    }
+
+	}
+
+

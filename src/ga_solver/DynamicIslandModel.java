@@ -381,7 +381,7 @@ public class DynamicIslandModel {
 			for (int i = 0; i< tests; i++) {
 				 islands = new  DynamicIslandModel(size,popupaltionSize,max,4,pc,pm,0.8,0.1);
 				// executions.add(
-						 islands.run(selectionType, crossoverType, insertionType);//);
+				 islands.run(selectionType, crossoverType, insertionType);//);
 				 islandsSizes.add(islands.getIslandSize());
 			}
 

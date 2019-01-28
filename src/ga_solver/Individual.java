@@ -12,8 +12,6 @@ import java.util.Scanner;
  */
 public interface Individual<T> {
 
-	Comparator<? super Individual> IndividualAgeComparator = null;
-	Comparator<? super Individual> IndividualFintessComparator = null;
 
 	/**
 	 * Affiche la representation de l'individu
@@ -51,6 +49,7 @@ public interface Individual<T> {
 	public int getIdPopulation() ;
 
 	public void setIdPopulation(int idPopulation);
+
 
 
 }

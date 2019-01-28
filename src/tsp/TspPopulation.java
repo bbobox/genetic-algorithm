@@ -20,10 +20,15 @@ import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 
 import operators.MutationBitFlip;
+import operators.MutationInsert;
+import operators.MutationInversion;
 import operators.MutationNFilps;
+import operators.MutationScramble;
+import operators.MutationSwap;
 import operators.Operator;
 import operators.OperatorMutation;
 import operators.Operators;
+import tsp.AgeComparator;
 import utilities.ArrayFunction;
 
 /**
@@ -57,6 +62,9 @@ public class TspPopulation implements Population<Double> {
 
 	double[][] distances; // distances entre les villes
 
+	FintessComparator fitnessComparator= new FintessComparator();
+	AgeComparator ageComparator = new AgeComparator();
+
 	private int[] improvements;
 	public TspPopulation( int problemSize, int popSize , int childs, double pc, double pm, int iterMax) throws IOException{
 		Parser p= new Parser();
@@ -76,6 +84,7 @@ public class TspPopulation implements Population<Double> {
 		nbPop = 1;
 		improvements = new  int[nbPop];
 		averageImprovements = new double[nbPop];
+		mutations = new Operators(4,25,this.iterMax);
 
 
 		/*distances = new double[problemSize][problemSize];
@@ -93,19 +102,72 @@ public class TspPopulation implements Population<Double> {
 		}*/
 
 
-		// instanciation et ajout des opérateurs d'operation;
-		/*OperatorMutation mutationbitFilp = new MutationBitFlip(problemSize, mutationProba);
-		OperatorMutation mutation1Filp = new MutationNFilps(problemSize, mutationProba,1);
-		OperatorMutation mutation3Filp = new MutationNFilps(problemSize, mutationProba,3);
-		OperatorMutation mutation5Filp = new MutationNFilps(problemSize, mutationProba,5);
+		// instanciation et ajouts des opérateurs de mutations;
+		OperatorMutation mutationInsert = new MutationInsert();
+		OperatorMutation mutationInversion = new MutationInversion();
+		OperatorMutation mutationScramble = new MutationScramble();
+		OperatorMutation mutationSwap = new MutationSwap(this.problemSize);
 
-		mutations.addOperator(new Operator(mutationbitFilp, this.iterMax));
-		mutations.addOperator(new Operator(mutation1Filp,this.iterMax));
-		mutations.addOperator(new Operator(mutation3Filp,this.iterMax));
-		mutations.addOperator(new Operator(mutation5Filp,this.iterMax));*/
+		mutations.addOperator(new Operator(mutationSwap,this.iterMax));
+		mutations.addOperator(new Operator(mutationInsert, this.iterMax));
+		mutations.addOperator(new Operator(mutationInversion,this.iterMax));
+		mutations.addOperator(new Operator(mutationScramble,this.iterMax));
 		//mutations.operatorInitial(3);
 
 	}
+
+	public TspPopulation(int popSize , int childs, double pc, double pm, int iterMax) throws IOException{
+		Parser p= new Parser();
+		distances = p.getDistancesMatrix("/home/etudiant/workspace/genetic-algorithm/a280.tsp");
+		population = new ArrayList<Individual>();
+		currentPopulation = new ArrayList<Individual>();
+		this.problemSize = distances[0].length;
+		populationSize = popSize;
+		nbChilds = childs;
+		crossoverProba = pc;
+		mutationProba = pm;
+		this.childs = new Individual[nbChilds];
+		this.parents =  new Individual[nbChilds];
+		this.iterMax = iterMax;
+		performance = new Double[iterMax];
+		iteration = 0;
+		nbPop = 1;
+		improvements = new  int[nbPop];
+		averageImprovements = new double[nbPop];
+		mutations = new Operators(4,25,this.iterMax);
+
+
+		/*distances = new double[problemSize][problemSize];
+		// les distances
+		Random rand= new Random();
+		int k;
+		for(int i=0; i<problemSize;i++){
+			for(int j=0; j<problemSize;j++){
+				if(distances[i][j]==0){
+					k = rand.nextInt(this.problemSize/2)+1;
+					distances[i][j] = k;
+					distances[j][i] = k;
+				}
+			}
+		}*/
+
+
+		// instanciation et ajouts des opérateurs de mutations;
+		OperatorMutation mutationInsert = new MutationInsert();
+		OperatorMutation mutationInversion = new MutationInversion();
+		OperatorMutation mutationScramble = new MutationScramble();
+		OperatorMutation mutationSwap = new MutationSwap(problemSize);
+
+		mutations.addOperator(new Operator(mutationSwap,this.iterMax));
+		mutations.addOperator(new Operator(mutationInsert, this.iterMax));
+		mutations.addOperator(new Operator(mutationInversion,this.iterMax));
+		mutations.addOperator(new Operator(mutationScramble,this.iterMax));
+
+		//mutations.operatorInitial(3);
+
+	}
+
+
 	/**
 	 * Modification du nombre total de population/iles (population voisines+1)
 	 * @param nb
@@ -128,6 +190,7 @@ public class TspPopulation implements Population<Double> {
 	public void initialization(){
 		for(int i = 0; i<populationSize ;i++){
 			Individual  ind = new Solution(problemSize,distances);
+			//System.out.println(ind.getFitness());
 			ind.setGeneration(0);
 			currentPopulation.add(ind);
 		}
@@ -509,14 +572,14 @@ public class TspPopulation implements Population<Double> {
 	 *  remplacement des individus les moins bons (fitness)
 	 */
 	public void childrenInsertion1(){
-		Collections.sort(currentPopulation,new SortByFitness() );
+		Collections.sort(currentPopulation, this.fitnessComparator );
 
 		int size = currentPopulation.size();
 		if((Double)childs[1].getFitness()<= (Double)currentPopulation.get(size-1).getFitness()){
 			currentPopulation.remove(size-1);
 			currentPopulation.add(childs[0].cloned());
 		}
-		Collections.sort(currentPopulation, new SortByFitness());
+		Collections.sort(currentPopulation, this.fitnessComparator);
 
 		size = currentPopulation.size();
 
@@ -542,13 +605,13 @@ public class TspPopulation implements Population<Double> {
 		currentPopulation.add(childs[0].cloned());
 		currentPopulation.add(childs[1].cloned());*/
 
-		//Collections.sort(currentPopulation, Solution.IndividualAgeComparator);
+		Collections.sort(currentPopulation, this.ageComparator);
 		int size = currentPopulation.size();
 		if(Double.compare( (Double)childs[0].getFitness(),(Double) currentPopulation.get(size-1).getFitness())!=1){
 			currentPopulation.remove(size-1);
 			currentPopulation.add(childs[0].cloned());
 		}
-		//Collections.sort(currentPopulation, Solution.IndividualAgeComparator);
+		Collections.sort(currentPopulation, this.ageComparator);
 		size = currentPopulation.size();
 
 		if(Double.compare((Double)childs[1].getFitness(),(Double) currentPopulation.get(size-1).getFitness())!=1){
@@ -563,7 +626,7 @@ public class TspPopulation implements Population<Double> {
 	 * Selection des deux meilleurs parents
 	 */
 	public void bestSelection(){
-		Collections.sort(currentPopulation,  new SortByFitness());
+		Collections.sort(currentPopulation,  this.fitnessComparator);
 
 		ArrayList<Individual> bestIndividuals = new ArrayList<Individual>();
 
@@ -625,7 +688,7 @@ public class TspPopulation implements Population<Double> {
 				selectionned.add(currentPopulation.get(id).cloned());
 			}
 
-			Collections.sort(selectionned, new SortByFitness());
+			Collections.sort(selectionned, this.fitnessComparator);
 
 			parents[0] = selectionned.get(0).cloned();
 			parents[1] = selectionned.get(1).cloned();
@@ -652,7 +715,7 @@ public class TspPopulation implements Population<Double> {
 	 * Retourne le meilleure fitness de la population
 	 */
 	public Double bestFitness(){
-		Collections.sort(currentPopulation,new SortByFitness() );
+		Collections.sort(currentPopulation,this.fitnessComparator );
 		/*double bestValue = (Double) currentPopulation.get(0).getFitness();
 		for(int i=0 ; i <currentPopulation.size() ; i++){
 			Individual ind = currentPopulation.get(i);
@@ -725,7 +788,6 @@ public class TspPopulation implements Population<Double> {
 	 */
 	public Double[] runByAdaptativeWheel(int selection, int crossover, int insertion){
 		int stepCounter = 0;
-		//boolean isOk = false;
 
 		// 1 - Initilisation
 		initialization();
@@ -746,34 +808,39 @@ public class TspPopulation implements Population<Double> {
 					this.crossoverApplication(crossover);
 				}
 				else{
-					//int[] representation1 = parents[0].getClonedRepresentation();
-					//int[] representation2 = parents[1].getClonedRepresentation();
+
 					childs[0] = parents[0].cloned();  new Solution(problemSize,distances);
 					childs[1] = parents[1].cloned(); new Solution(problemSize,distances);
-					//childs[0].setRepresentation(representation1);
-					//childs[1].setRepresentation(representation2);
 				}
 				childs[0].setGeneration(stepCounter+1);
 				childs[1].setGeneration(stepCounter+1);
 
 				//- 5 Mutation ( des deux enfants)
-					// choix de l'operateur  et application de la  mutation
 				if (probableChoice(mutationProba)){
-					int choice = mutations.operatorChoice();
-					improvement = 0;
+					int choice = mutations.operatorChoice();// choix de l'operateur  et application de la  mutation
+					double improvement = 0;
+
+					// Before mutation
+					Double fitnessBeforeMutatation0 = (Double) childs[0].getFitness();
+					Double fitnessBeforeMutatation1 = (Double) childs[1].getFitness();
+					// After Mutation
 					int[] afterMutation0 = mutations.operatorApplication(choice, childs[0]);
 					int[] afterMutation1 = mutations.operatorApplication(choice, childs[1]);
+					childs[0].setRepresentation(afterMutation0);
+					childs[1].setRepresentation(afterMutation1);
+					Double fitnessAfterMutatation0 = (Double) childs[0].getFitness();
+					Double fitnessAfterMutatation1 = (Double) childs[1].getFitness();
 
-					improvement += improvement(childs[0].getRepresentation(),afterMutation0);
+					// mise à jour des ameliorations
+					improvement += computeImprovement(fitnessBeforeMutatation0,fitnessAfterMutatation0);
+
 					if(improvement<0){
 						improvement=0;
 					}
-					childs[0].setRepresentation(afterMutation0);
-					improvement += improvement(childs[1].getRepresentation(),afterMutation1);
-					childs[1].setRepresentation(afterMutation1);
-					// mise à jour des amelioration
+
+					improvement += computeImprovement(fitnessBeforeMutatation1,fitnessAfterMutatation1);
 					if(improvement>0){
-						mutations.addImprovment(choice, improvement,stepCounter);
+						mutations.addImprovment(choice, (int) improvement,stepCounter);
 					}
 					else{
 						mutations.addImprovment(choice, 0,stepCounter);
@@ -869,21 +936,21 @@ public class TspPopulation implements Population<Double> {
 		improvement = 0;
 		if(type==0){
 			int[] afterMutation1 = this.swapMutation(childs[0]);
-			improvement += improvement(childs[0].getRepresentation(),afterMutation1);
+			//improvement += computeImprovement(childs[0].getRepresentation(),afterMutation1);
 			childs[0].setRepresentation(afterMutation1);
 
 			int[] afterMutation2 = this.swapMutation(childs[1]);
-			improvement += improvement(childs[1].getRepresentation(),afterMutation2);
+			//improvement += computeImprovement(childs[1].getRepresentation(),afterMutation2);
 			childs[1].setRepresentation(afterMutation2);
 
 		}
 		else{
 			int[] afterMutation1 = this.swapMutation(childs[0]);
-			improvement += improvement(childs[0].getRepresentation(),afterMutation1);
+			//improvement += computeImprovement(childs[0].getRepresentation(),afterMutation1);
 			childs[0].setRepresentation(afterMutation1);
 
 			int[] afterMutation2 = swapMutation(childs[1]);
-			improvement += improvement(childs[0].getRepresentation(),afterMutation2);
+			//improvement += computeImprovement(childs[0].getRepresentation(),afterMutation2);
 			childs[1].setRepresentation(afterMutation2);
 		}
 	}
@@ -948,8 +1015,8 @@ public class TspPopulation implements Population<Double> {
 		return result;
 	}
 
-	int improvement(int[] rep1, int[] rep2){
-		return onesCounter(rep2)-onesCounter(rep1);
+	Double computeImprovement(double fitessValueBeforeMutation, double fitessValueAfterMutation){
+		return fitessValueBeforeMutation-fitessValueAfterMutation;
 	}
 
 	/**
@@ -1021,7 +1088,7 @@ public class TspPopulation implements Population<Double> {
 	  * Recherche d'un individu de meilleur qualité
 	  */
 	 public Individual getBestIndividual(){
-		 Collections.sort(currentPopulation, new SortByFitness());
+		 Collections.sort(currentPopulation, fitnessComparator);
 
 			ArrayList<Individual> bestIndividuals = new ArrayList<Individual>();
 
@@ -1131,7 +1198,7 @@ public class TspPopulation implements Population<Double> {
 	 public static void outPutAllAverage(ArrayList<double[][]> choicesProba , int iter, int n) throws IOException{
 
 		 for(int i=0 ; i< n; i++){
-			 printDataInFile("../results/operator_"+i+".dat", operatorAverageProba(choicesProba,i,iter));
+			 printDataInFile("../tsp_results/operator_"+i+".dat", operatorAverageProba(choicesProba,i,iter));
 		 }
 	 }
 
@@ -1332,7 +1399,7 @@ public class TspPopulation implements Population<Double> {
 			Population s = new TspPopulation(size,popupaltionSize,2,pc,pm,max);
 			if(mutationType>=0) {
 				for (int i = 0; i< tests; i++) {
-					 s = new TspPopulation(size,popupaltionSize,2,pc,pm,max);
+					 s = new TspPopulation(popupaltionSize,2,pc,pm,max);
 					 executions.add((Double[]) s.run(selectionType, crossoverType, mutationType, insertionType));
 				}
 				double[] average = average(executions,max);
@@ -1340,17 +1407,16 @@ public class TspPopulation implements Population<Double> {
 			}
 			else {
 				for (int i = 0; i< tests; i++) {
-					 s = new TspPopulation(size,popupaltionSize,2,pc,pm,max);
+					 s = new TspPopulation(popupaltionSize,2,pc,pm,max);
 
-					 //executions.add((Double[]) s.runByAdaptativeWheel(selectionType, crossoverType, insertionType));
-					 //choicesProba.add(s.getChoiceProba());
+					 executions.add((Double[]) s.runByAdaptativeWheel(selectionType, crossoverType, insertionType));
+					 choicesProba.add(s.getChoiceProba());
 
 				}
 				double[] average = average(executions,max);
-				//outPutAllAverage(choicesProba,max,4);
-				//printArray(average);
+				outPutAllAverage(choicesProba,max,4);
+				printArray(average);
 			}
-
 
 		}
 

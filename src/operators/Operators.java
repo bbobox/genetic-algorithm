@@ -33,7 +33,6 @@ public class Operators {
 		operatorsSet = new ArrayList<Operator>();
 		utilities = new int[nb_operators];
 		last_selections_number = last_generations;
-
 	}
 
 	/**
@@ -183,9 +182,5 @@ public class Operators {
 		return operatorsSet.get(i);
 
 	}
-
-
-
-
 
 }

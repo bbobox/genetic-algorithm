@@ -4,6 +4,7 @@ package ga_solver;
 
 }*/
 
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -46,6 +47,9 @@ public class BitArrayIndividualsPopulation implements Population<Integer> {
 	private ArrayList<Integer> originOfIndividuals; // ensemble d'origne des individus présent
 	private int nbPop;
 	private double[] averageImprovements;
+
+	OneMaxFintessComparator fitnessComparator  = new OneMaxFintessComparator();
+	AgeComparator ageComparator = new AgeComparator();
 
 	private int[] improvements;
 	public BitArrayIndividualsPopulation( int problemSize, int popSize , int childs, double pc, double pm, int iterMax){
@@ -322,24 +326,22 @@ public class BitArrayIndividualsPopulation implements Population<Integer> {
 	 *  remplacement des individus les moins bons (fitness)
 	 */
 	public void childrenInsertion1(){
-		Collections.sort(currentPopulation, this.IndividualFintessComparator);
-		int size = currentPopulation.size();
-		if((Integer)childs[0].getFitness()>=(Integer)currentPopulation.get(size-1).getFitness()){
-			currentPopulation.remove(size-1);
-			currentPopulation.add(childs[0].cloned());
-		}
-		Collections.sort(currentPopulation, this.IndividualFintessComparator);
+		Collections.sort(currentPopulation, fitnessComparator);
 
-		size = currentPopulation.size();
-		if((Integer)childs[1].getFitness()>=(Integer)currentPopulation.get(size-1).getFitness()){
-			currentPopulation.remove(size-1);
-			currentPopulation.add(childs[1].cloned());
-		}
+		int n =  currentPopulation.size();
+		Individual cpyI1 = currentPopulation.get(n-1).cloned();
+		Individual cpyI2 = currentPopulation.get(n-2).cloned();
+		currentPopulation.remove(n-1);
+		currentPopulation.remove(n-2);
+		ArrayList<Individual> tempList = new ArrayList<Individual>();
 
-		/*currentPopulation.remove(populationSize-1);
-		currentPopulation.remove(populationSize-2);
-		currentPopulation.add(childs[0]);
-		currentPopulation.add(childs[1]);*/
+		tempList.add(childs[1].cloned());
+		tempList.add(childs[0].cloned());
+		tempList.add(cpyI1);
+		tempList.add(cpyI2);
+		Collections.sort(tempList, fitnessComparator);
+		currentPopulation.add(tempList.get(0)); tempList.remove(0);
+		currentPopulation.add(tempList.get(0)); tempList.remove(0);
 	}
 
 	/**
@@ -347,27 +349,22 @@ public class BitArrayIndividualsPopulation implements Population<Integer> {
 	 * remplacement des individus les plus agés
 	 */
 	public void childrenInsertion2(){
-		/*Collections.sort(currentPopulation, this.IndividualAgeComparator);
-		currentPopulation.remove(populationSize-1);
-		currentPopulation.remove(populationSize-2);
-		currentPopulation.add(childs[0].cloned());
-		currentPopulation.add(childs[1].cloned());*/
+		Collections.sort(currentPopulation, ageComparator);
 
-		Collections.sort(currentPopulation, this.IndividualAgeComparator);
-		int size = currentPopulation.size();
-		if((Integer)childs[0].getFitness()>=(Integer)currentPopulation.get(size-1).getFitness()){
-			currentPopulation.remove(size-1);
-			currentPopulation.add(childs[0].cloned());
+		int n =  currentPopulation.size();
+		Individual cpyI1 = currentPopulation.get(n-1).cloned();
+		Individual cpyI2 = currentPopulation.get(n-2).cloned();
+		currentPopulation.remove(n-1);
+		currentPopulation.remove(n-2);
+		ArrayList<Individual> tempList = new ArrayList<Individual>();
 
-
-		}
-		Collections.sort(currentPopulation, this.IndividualAgeComparator);
-		size = currentPopulation.size();
-		if((Integer)childs[1].getFitness()>=(Integer)currentPopulation.get(size-1).getFitness()){
-			currentPopulation.remove(size-1);
-			currentPopulation.add(childs[1].cloned());
-
-		}
+		tempList.add(childs[1].cloned());
+		tempList.add(childs[0].cloned());
+		tempList.add(cpyI1);
+		tempList.add(cpyI2);
+		Collections.sort(tempList, fitnessComparator);
+		currentPopulation.add(tempList.get(0)); tempList.remove(0);
+		currentPopulation.add(tempList.get(0)); tempList.remove(0);
 
 	}
 
@@ -375,7 +372,7 @@ public class BitArrayIndividualsPopulation implements Population<Integer> {
 	 * Selection des deux meilleurs parents
 	 */
 	public void bestSelection(){
-		Collections.sort(currentPopulation, this.IndividualFintessComparator);
+		Collections.sort(currentPopulation,fitnessComparator);
 
 		ArrayList<Individual> bestIndividuals = new ArrayList<Individual>();
 
@@ -437,7 +434,7 @@ public class BitArrayIndividualsPopulation implements Population<Integer> {
 				selectionned.add(currentPopulation.get(id).cloned());
 			}
 
-			Collections.sort(selectionned, this.IndividualFintessComparator);
+			Collections.sort(selectionned, fitnessComparator);
 
 			parents[0] = selectionned.get(0).cloned();
 			parents[1] = selectionned.get(1).cloned();
@@ -508,18 +505,13 @@ public class BitArrayIndividualsPopulation implements Population<Integer> {
 				selectionApplication(selection);
 
 				//- 4 Croisement
-
 				if (probableChoice(crossoverProba)){
 
 					this.crossoverApplication(crossover);
 				}
 				else{
-					int[] representation1 = parents[0].getClonedRepresentation();
-					int[] representation2 = parents[1].getClonedRepresentation();
-					childs[0] = new BitArrayGenotype(problemSize);
-					childs[1] = new BitArrayGenotype(problemSize);
-					childs[0].setRepresentation(representation1);
-					childs[1].setRepresentation(representation2);
+					childs[0] =  parents[0].cloned();
+					childs[1] =  parents[1].cloned();
 				}
 				childs[0].setGeneration(stepCounter+1);
 				childs[1].setGeneration(stepCounter+1);
@@ -566,12 +558,8 @@ public class BitArrayIndividualsPopulation implements Population<Integer> {
 					this.crossoverApplication(crossover);
 				}
 				else{
-					int[] representation1 = parents[0].getClonedRepresentation();
-					int[] representation2 = parents[1].getClonedRepresentation();
-					childs[0] = new BitArrayGenotype(problemSize);
-					childs[1] = new BitArrayGenotype(problemSize);
-					childs[0].setRepresentation(representation1);
-					childs[1].setRepresentation(representation2);
+					childs[0] =  parents[0].cloned();
+					childs[1] =  parents[1].cloned();
 				}
 				childs[0].setGeneration(stepCounter+1);
 				childs[1].setGeneration(stepCounter+1);
@@ -825,7 +813,7 @@ public class BitArrayIndividualsPopulation implements Population<Integer> {
 	  * Recherche d'un individu de meilleur qualité
 	  */
 	 public Individual getBestIndividual(){
-		 Collections.sort(currentPopulation, this.IndividualFintessComparator);
+		 Collections.sort(currentPopulation, fitnessComparator);
 
 			ArrayList<Individual> bestIndividuals = new ArrayList<Individual>();
 
@@ -925,7 +913,8 @@ public class BitArrayIndividualsPopulation implements Population<Integer> {
 
 				 cpt+=  operatorAverage[k][i];
 			 }
-			 average[i] = (1.)*cpt/n;
+			 average[i] = Math. round( ((1.)*cpt/n) * 100000.0) / 100000.0;
+			 //Math. round( array[i] * 100000.0) / 100000.0)
 		 }
 
 		 return average;
@@ -935,7 +924,7 @@ public class BitArrayIndividualsPopulation implements Population<Integer> {
 	 public static void outPutAllAverage(ArrayList<double[][]> choicesProba , int iter, int n) throws IOException{
 
 		 for(int i=0 ; i< n; i++){
-			 printDataInFile("../results/operator_"+i+".dat", operatorAverageProba(choicesProba,i,iter));
+			 printDataInFile("../one_max_results/operator_"+i+".dat", operatorAverageProba(choicesProba,i,iter));
 		 }
 	 }
 
@@ -1011,8 +1000,6 @@ public class BitArrayIndividualsPopulation implements Population<Integer> {
 			//-6 Insertion
 			insertionApplication(insertion);
 		 }
-		// System.out.println("amelioration op="+mutation);
-		// this.testPrintTable(improvements);
 
 	 }
 
@@ -1090,8 +1077,7 @@ public class BitArrayIndividualsPopulation implements Population<Integer> {
 				this.averageImprovements[k]=(this.improvements[k]*(1.))/originIslandRepartition[k];
 			 }
 		 }
-		// this.printArray(averageImprovements);
-		// Sytem.out.println
+
 	 }
 
 	 /**
@@ -1120,39 +1106,6 @@ public class BitArrayIndividualsPopulation implements Population<Integer> {
 		}
 		System.out.println("]");
 	}
-
-	public static Comparator<Individual> IndividualAgeComparator = new Comparator<Individual>() {
-
-		public int compare(Individual i1, Individual i2) {
-		   int evalOfIndividual1 = i1.getGeneration();
-		   int evalOfIndividual2 =  i2.getGeneration();
-
-		   //ascending order
-		   //return evalOfIndividual1 - evalOfIndividual2;
-
-		   //descending order
-		   return evalOfIndividual2 - evalOfIndividual1;
-	    }
-
-
-	};
-
-	/**
-	 * Compateur de deux  individus en fonction du resultat de leur evalution
-	 */
-	public static Comparator<Individual> IndividualFintessComparator = new Comparator<Individual>() {
-
-		public int compare(Individual i1, Individual i2) {
-		   int evalOfIndividual1 = (Integer) i1.getFitness();
-		   int evalOfIndividual2 =  (Integer) i2.getFitness();
-
-		   //ascending order
-		   //return evalOfIndividual1 - evalOfIndividual2;
-
-		   //descending order
-		   return evalOfIndividual2 - evalOfIndividual1;
-	    }
-	};
 
 
 	public static void main(String args[]) throws IOException{
@@ -1188,7 +1141,7 @@ public class BitArrayIndividualsPopulation implements Population<Integer> {
 				}
 				double[] average = average(executions,max);
 				outPutAllAverage(choicesProba,max,4);
-				//printArray(average);
+				printArray(average);
 			}
 
 

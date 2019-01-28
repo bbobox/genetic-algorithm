@@ -92,77 +92,7 @@ public interface Population<T> {
 	/**
 	 * Recherche de solution avec gestion automatique du choix de l'opérateur de mutation: Roulette Adaptative
 	 */
-	public T[] runByAdaptativeWheel(int selection, int crossover, int insertion);/*{
-		int stepCounter = 0;
-		//boolean isOk = false;
-
-		// 1 - Initilisation
-		initialization();
-
-		// 2 - Evalutation
-		for(int i = 0 ; i< iterMax ; i++) {
-			stepCounter = i;
-			if(!hasBestIndividual()) {
-				performance[stepCounter] = bestFitness();
-
-				//-3 Selection ( Tri et selection des 2 meilleurs parents)
-				selectionApplication(selection);
-
-				//- 4 Croisement
-
-				if (probableChoice(crossoverProba)){
-
-					this.crossoverApplication(crossover);
-				}
-				else{
-					int[] representation1 = parents[0].getClonedRepresentation();
-					int[] representation2 = parents[1].getClonedRepresentation();
-					childs[0] = new BitArrayGenotype(problemSize);
-					childs[1] = new BitArrayGenotype(problemSize);
-					childs[0].setRepresentation(representation1);
-					childs[1].setRepresentation(representation2);
-				}
-				childs[0].setGeneration(stepCounter+1);
-				childs[1].setGeneration(stepCounter+1);
-
-				//- 5 Mutation ( des deux enfants)
-					// choix de l'operateur  et application de la  mutation
-				if (probableChoice(mutationProba)){
-					int choice = mutations.operatorChoice();
-					improvement = 0;
-					int[] afterMutation0 = mutations.operatorApplication(choice, childs[0]);
-					int[] afterMutation1 = mutations.operatorApplication(choice, childs[1]);
-
-					improvement += improvement(childs[0].getRepresentation(),afterMutation0);
-					if(improvement<0){
-						improvement=0;
-					}
-					childs[0].setRepresentation(afterMutation0);
-					improvement += improvement(childs[1].getRepresentation(),afterMutation1);
-					childs[1].setRepresentation(afterMutation1);
-					// mise à jour des amelioration
-					if(improvement>0){
-						mutations.addImprovment(choice, improvement,stepCounter);
-					}
-					else{
-						mutations.addImprovment(choice, 0,stepCounter);
-					}
-
-				}
-
-				//-6 Insertion
-
-				insertionApplication(insertion);
-			}else {
-				performance[stepCounter] = bestFitness();
-				mutations.updateUtilities();
-				mutations.updateProbabilites(stepCounter);
-			}
-		}
-		return performance;
-
-	}*/
-
+	public T[] runByAdaptativeWheel(int selection, int crossover, int insertion);
 
 	/**
 	 * Effectue un choix aleatoire en fonction d'une proabilite

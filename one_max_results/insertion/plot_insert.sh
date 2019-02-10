@@ -1,21 +1,18 @@
 #!/bin/bash
 
 gnuplot <<- EOF
+	set key bot right 
+        set term pdf
 	set xlabel "iterations"
 	set ylabel "fitness"
-	set term png
-	set output "mutations.png"
-	set key right
-
+        set output "insertions.pdf"
+        
+        set xrange [ * : * ] noreverse writeback
 	set x2range [ * : * ] noreverse writeback
 	set yrange [ * : * ] noreverse writeback
 	set y2range [ * : * ] noreverse writeback
 	set zrange [ * : * ] noreverse writeback
 	set cbrange [ * : * ] noreverse writeback
 	set rrange [ * : * ] noreverse writeback
-
-	plot 'swap.dat' u 1:2 w l, 'insert.dat' u 1:2 w l, 'inversion.dat' u 1:2 w l,'scramble.dat' u 1:2 w l, 'adaptative_mutation.dat' u 1:2 w l
+	plot 'age.dat' u 1:2 w l, 'fitness.dat' u 1:2 w l
 EOF
-
-#, 'adaptive_wheel.dat'  u 1:2 w l , '5_flips_island.dat' u 1:2 w l
-#enhanced autotitle box lt black linewidth 1.000 dashtype solid

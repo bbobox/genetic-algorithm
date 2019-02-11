@@ -231,7 +231,7 @@ public class DynamicIslandModel {
 
 
 
-	public int[] run(int selection, int crossover, int insertion){
+	public int[] run(){
 		//Initialisation des  iles;
 		for (int i = 0; i<n ; i++ ){
 			islands.add(new BitArrayIndividualsPopulation(problemSize,popSize/n, 2, crossoverProba, mutationProba , iterMax));
@@ -348,7 +348,7 @@ public class DynamicIslandModel {
 	 static  void outPutAllAverage(ArrayList<int[][]> islandSizes , int iter, int n) throws IOException{
 
 		 for(int i=0 ; i< n; i++){
-			 printDataInFile("../results/operator_"+i+".dat", islandSizeAverage(islandSizes,i,iter));
+			 printDataInFile("../one_max_results/operator_"+i+".dat", islandSizeAverage(islandSizes,i,iter));
 		 }
 	 }
 
@@ -368,20 +368,14 @@ public class DynamicIslandModel {
 	public static void main(String args[]) throws IOException{
 		ArrayList<int[]> executions = new  ArrayList<int[]>();
 		ArrayList<int[][]> islandsSizes = new  ArrayList<int[][]>();
-			int selectionType = Integer.parseInt(args[0]);
-			int crossoverType = Integer.parseInt(args[1]);
-			int insertionType = Integer.parseInt(args[2]);
-			double pc = Double.parseDouble(args[3]);
-			double pm = Double.parseDouble(args[4]);
-			int size = Integer.parseInt(args[5]);
-			int max = Integer.parseInt(args[6]);
-			int tests = Integer.parseInt(args[7]);
-			int popupaltionSize = Integer.parseInt(args[8]);
-			DynamicIslandModel islands = new  DynamicIslandModel(size,popupaltionSize,max,4,pc,pm,0.8,0.1);
+			int size = Integer.parseInt(args[0]);
+			int max = Integer.parseInt(args[1]);
+			int tests = Integer.parseInt(args[2]);
+			int popupaltionSize = Integer.parseInt(args[3]);
+			DynamicIslandModel islands = new  DynamicIslandModel(size,popupaltionSize,max,4,1,1,0.8,0.1);
 			for (int i = 0; i< tests; i++) {
-				 islands = new  DynamicIslandModel(size,popupaltionSize,max,4,pc,pm,0.8,0.1);
-				// executions.add(
-				 islands.run(selectionType, crossoverType, insertionType);//);
+				 islands = new  DynamicIslandModel(size,popupaltionSize,max,4,1,1,0.8,0.1);
+				 islands.run();
 				 islandsSizes.add(islands.getIslandSize());
 			}
 

@@ -103,7 +103,7 @@ public class BitArrayGenotype implements Individual<Integer> {
 	}
 
 
-	public static void main(String args[]){
+	/*public static void main(String args[]){
 		int[] r1 = {1,1,1,1,0}, r2 = {1,0,0,0,0}, r3 = {1,1,1,1,1}, r4 = {1,0,1,0,1}, r5 = {0,0,0,0,1};
 
 		Individual i1 = new BitArrayGenotype(5); i1.setRepresentation(r1);
@@ -117,70 +117,7 @@ public class BitArrayGenotype implements Individual<Integer> {
 		tempList.add(i2);
 		tempList.add(i3);
 
-		/*AgeComparator cp  = new AgeComparator();
-		Collections.sort(tempList, cp);
-		for(int i=0; i<tempList.size(); i++){
-			tempList.get(i).print();
-			System.out.println(tempList.get(i).getGeneration());
-
-		}*/
-
-		double aa = 0.01826923076923077;
-		int rounded = (int) aa ;
-
-		System.out.println(rounded);
-
-		/*Individual i4 = new BitArrayGenotype(5); i4.setRepresentation(r4);
-		Individual i5 = new BitArrayGenotype(5); i5.setRepresentation(r5);
-
-		ArrayList<Individual> list = new ArrayList<Individual>();
-
-		list.add(i1); list.add(i2); list.add(i3);
-		for(int i=0; i<list.size(); i++){
-			list.get(i).print();
-		}
-		OneMaxFintessComparator fitnessComparator  = new OneMaxFintessComparator();
-		Collections.sort(list, fitnessComparator);
-		System.out.println();
-		//list.add(i1); list.add(i2); list.add(i3);
-		for(int i=0; i<list.size(); i++){
-			list.get(i).print();
-		}
-
-		int n =  list.size();
-		Individual cpyI1 = list.get(n-1).cloned();
-		Individual cpyI2 = list.get(n-2).cloned();
-
-		list.remove(n-1);
-		list.remove(n-2);
-
-		ArrayList<Individual> tempList = new ArrayList<Individual>();
-		tempList.add(i4);
-		tempList.add(i5);
-		tempList.add(cpyI1);
-		tempList.add(cpyI2);
-		Collections.sort(tempList, fitnessComparator);
-
-
-		System.out.println("---------------");
-		for(int i=0; i<list.size(); i++){
-			list.get(i).print();
-		}
-
-		System.out.println("--------temps LIST-------");
-		for(int i=0; i<tempList.size(); i++){
-			tempList.get(i).print();
-		}
-
-		list.add(tempList.get(0)); tempList.remove(0);
-		list.add(tempList.get(0)); tempList.remove(0);
-		System.out.println("--------final LIST-------");
-
-		System.out.println("---------------");
-		for(int i=0; i<list.size(); i++){
-			list.get(i).print();
-		}*/
-	}
+	}*/
 
 
 }

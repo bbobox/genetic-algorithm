@@ -66,7 +66,7 @@ public class TspPopulation implements Population<Double> {
 	private int[] improvements;
 	public TspPopulation( int problemSize, int popSize , int childs, double pc, double pm, int iterMax) throws IOException{
 		Parser p= new Parser();
-		distances = p.getDistancesMatrix("/home/etudiant/workspace/genetic-algorithm/a280.tsp");
+		distances = p.getDistancesMatrix("a280.tsp");
 		population = new ArrayList<Individual>();
 		currentPopulation = new ArrayList<Individual>();
 		this.problemSize = distances[0].length;
@@ -1376,18 +1376,17 @@ public class TspPopulation implements Population<Double> {
 	public static void main(String args[]) throws IOException{
 		ArrayList<Double[]> executions = new  ArrayList<Double[]>();
 		ArrayList<double[][]> choicesProba = new  ArrayList<double[][]>();
-		if(args.length==10){
+		if(args.length==9){
 			int selectionType = Integer.parseInt(args[0]);
 			int crossoverType = Integer.parseInt(args[1]);
 			int mutationType = Integer.parseInt(args[2]);
 			int insertionType = Integer.parseInt(args[3]);
 			double pc = Double.parseDouble(args[4]);
 			double pm = Double.parseDouble(args[5]);
-			int size = Integer.parseInt(args[6]);
-			int max = Integer.parseInt(args[7]);
-			int tests = Integer.parseInt(args[8]);
-			int popupaltionSize = Integer.parseInt(args[9]);
-			Population s = new TspPopulation(size,popupaltionSize,2,pc,pm,max);
+			int max = Integer.parseInt(args[6]);
+			int tests = Integer.parseInt(args[7]);
+			int popupaltionSize = Integer.parseInt(args[8]);
+			Population s = new TspPopulation(0,popupaltionSize,2,pc,pm,max);
 			if(mutationType>=0) {
 				for (int i = 0; i< tests; i++) {
 					 s = new TspPopulation(popupaltionSize,2,pc,pm,max);

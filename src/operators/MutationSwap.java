@@ -27,8 +27,6 @@ public class MutationSwap implements OperatorMutation {
 		swap = representation[idCity1];
 		representation[idCity1] = representation[idCity2];
 		representation[idCity2] = swap;
-		//Solution s = new Solution(problemSize,distances);
-		//s.setRepresentation(representation);
 
 		return representation;
 	}

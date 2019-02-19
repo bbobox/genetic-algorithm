@@ -1,6 +1,6 @@
 #one-max
 
-Exécution de l'AG (Steady-state)  pour le One-Max: ./ga_onemax.sh avec affection d'une valeur à chaque paramètre:
+Exécution de l'AG (Steady-state)  pour le One-Max: ./ga_onemax.sh avec affectation d'une valeur à chaque paramètre:
 	-selection : -s  ( 1: best, 2: random, 3 : tournament)
 	-crossover : -c  ( 1: mono-point, 2 : uniform )
 	-mutation : -m   ( 0 : bit-flip , -1 : adaptive_wheel, : 1 : 1-flip , 3 : 3-flip , 5: 5-flip ) 
@@ -16,7 +16,7 @@ Exécution de l'AG (Steady-state)  pour le One-Max: ./ga_onemax.sh avec affectio
 	Exemple : ./ga_onemax.sh -s 3 -c 1 -mut 0 -i 1 -pc 0.1 -pm 1 -N 100 -max 1000 -t 1 -pop 10
 	
 
-Exécution de l'AG  pour le model en ile dynamique : ./islands_dynamic.sh avec affection d'une valeur à chaque paramètre:
+Exécution de l'AG  pour le model en ile dynamique : ./islands_dynamic.sh avec affectation d'une valeur à chaque paramètre:
 	-problem_size : -N  val
 	-iterations_max : -max val
 	-nombre_exécutions : -t val
@@ -28,7 +28,7 @@ Exécution de l'AG  pour le model en ile dynamique : ./islands_dynamic.sh avec a
 	
 	
 	
-Exécution de l'AG (Steady-state)  pour le TSP (a280.TSP déjà intégré dans le programme): ./ga_tsp.sh avec affection d'une valeur à chaque paramètre:
+Exécution de l'AG (Steady-state)  pour le TSP (a280.TSP déjà intégré dans le programme): ./ga_tsp.sh avec affectation d'une valeur à chaque paramètre:
 	-selection : -s  ( 1: best, 2: random, 3 : tournament)
 	-crossover : -c  ( 1: order1Crossover, 2 : pmxCrossover, 3 : cycleCrossover )
 	-mutation : -m   ( 0 : swap , 2 : insert, 3 : inversion , 4 :scramble , -1: adaptive_wheel ) 
